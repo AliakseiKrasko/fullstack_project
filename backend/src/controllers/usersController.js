@@ -92,3 +92,30 @@ export const deleteUser = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete user' });
     }
 };
+
+// Получить заказы конкретного пользователя
+export const getUserOrders = async (req, res) => {
+    try {
+        const { id } = req.params; // ID пользователя из URL
+
+        // Проверка ID
+        if (!id || isNaN(id)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        // Запрос в таблицу orders
+        const [orders] = await pool.query(
+            'SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC',
+            [id]
+        );
+
+        if (orders.length === 0) {
+            return res.status(404).json({ message: `No orders found for user ID ${id}` });
+        }
+
+        res.json(orders);
+    } catch (error) {
+        console.error('Error fetching user orders:', error);
+        res.status(500).json({ message: 'Failed to fetch user orders' });
+    }
+};

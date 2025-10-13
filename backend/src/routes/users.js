@@ -1,5 +1,10 @@
 import express from 'express';
-import { getAllUsers, createUser, deleteUser } from '../controllers/usersController.js';
+import {
+    getAllUsers,
+    createUser,
+    deleteUser,
+    getUserOrders
+} from '../controllers/usersController.js';
 
 const router = express.Router();
 
@@ -11,5 +16,8 @@ router.post('/', createUser);
 
 // DELETE /users/:id - удалить пользователя
 router.delete('/:id', deleteUser);
+
+// ✅ Новый маршрут — получить заказы конкретного пользователя
+router.get('/:id/orders', getUserOrders);
 
 export default router;
