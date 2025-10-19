@@ -30,7 +30,7 @@ export const UserItem = ({ user }: UserItemProps) => {
     return (
         <div className="user-item">
             <div className="user-info">
-                <strong>{user.name}</strong>{' - '}
+                <strong>{user.name}</strong>{' ----- '}
                 <span>{user.email}</span>
                 <small>{new Date(user.created_at).toLocaleString()}</small>
             </div>
