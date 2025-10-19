@@ -9,10 +9,8 @@ const isValidEmail = (email) => {
 // Получить всех пользователей
 export const getAllUsers = async (req, res) => {
     try {
-        const [rows] = await pool.query(
-            'SELECT * FROM users ORDER BY created_at DESC'
-        );
-        res.json(rows);
+        const result = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
+        res.json(result.rows);
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ message: 'Failed to fetch users' });
@@ -45,24 +43,19 @@ export const createUser = async (req, res) => {
             return res.status(400).json({ message: 'Email is too long (max 150 characters)' });
         }
 
-        // Создание пользователя
-        const [result] = await pool.query(
-            'INSERT INTO users (name, email) VALUES (?, ?)',
+        // Создание пользователя (PostgreSQL-стиль)
+        const result = await pool.query(
+            'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
             [name.trim(), email.trim()]
         );
 
-        // Получение созданного пользователя
-        const [rows] = await pool.query(
-            'SELECT * FROM users WHERE id = ?',
-            [result.insertId]
-        );
-
-        res.status(201).json(rows[0]);
+        // Возвращаем созданного пользователя
+        res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error('Error creating user:', error);
 
-        // Проверка на дубликат email (если есть unique constraint)
-        if (error.code === 'ER_DUP_ENTRY') {
+        // Проверка на дубликат email
+        if (error.code === '23505') { // PostgreSQL код для unique violation
             return res.status(400).json({ message: 'Email already exists' });
         }
 
@@ -75,14 +68,14 @@ export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Валидация ID
+        // Проверка ID
         if (!id || isNaN(id)) {
             return res.status(400).json({ message: 'Invalid user ID' });
         }
 
-        const [result] = await pool.query('DELETE FROM users WHERE id = ?', [id]);
+        const result = await pool.query('DELETE FROM users WHERE id = $1', [id]);
 
-        if (result.affectedRows === 0) {
+        if (result.rowCount === 0) {
             return res.status(404).json({ message: `User with ID ${id} not found` });
         }
 
@@ -96,24 +89,23 @@ export const deleteUser = async (req, res) => {
 // Получить заказы конкретного пользователя
 export const getUserOrders = async (req, res) => {
     try {
-        const { id } = req.params; // ID пользователя из URL
+        const { id } = req.params;
 
         // Проверка ID
         if (!id || isNaN(id)) {
             return res.status(400).json({ message: 'Invalid user ID' });
         }
 
-        // Запрос в таблицу orders
-        const [orders] = await pool.query(
-            'SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC',
+        const result = await pool.query(
+            'SELECT * FROM orders WHERE user_id = $1 ORDER BY order_date DESC',
             [id]
         );
 
-        if (orders.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: `No orders found for user ID ${id}` });
         }
 
-        res.json(orders);
+        res.json(result.rows);
     } catch (error) {
         console.error('Error fetching user orders:', error);
         res.status(500).json({ message: 'Failed to fetch user orders' });

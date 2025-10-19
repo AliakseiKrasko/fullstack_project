@@ -1,13 +1,13 @@
-import mysql from 'mysql2/promise';
+import pkg from 'pg';
+const { Pool } = pkg;
 
-const pool = mysql.createPool({
+const pool = new Pool({
     host: 'localhost',
-    user: 'root',
-    password: '992301',
-    database: 'practice_db',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
+    user: 'postgres',       // имя пользователя PostgreSQL
+    password: '992301',     // твой пароль при установке
+    database: 'fullstack_db', // <-- именно твоя база
+    port: 5432,             // стандартный порт PostgreSQL
 });
+
 
 export default pool;
