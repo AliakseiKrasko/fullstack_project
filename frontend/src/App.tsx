@@ -8,9 +8,9 @@ function App() {
             <header className="app-header">
                 <h1>User Management System</h1>
                 <p className="subtitle">Express + RTK Query</p>
+                <UserForm />
             </header>
             <main className="app-main">
-                <UserForm />
                 <UserList />
             </main>
         </div>

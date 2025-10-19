@@ -24,16 +24,17 @@
 }
 
 .app-main {
-  max-width: 800px;
+  max-width: 80%;
   margin: 2rem auto;
   padding: 0 1rem;
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  /*flex-direction: column;*/
+  gap: 4rem;
 }
 
 /* User Form */
 .user-form {
+  width: 40%;
   background: white;
   padding: 2rem;
   border-radius: 12px;
@@ -99,6 +100,7 @@
 
 /* User List */
 .user-list {
+  width: 100%;
   background: white;
   padding: 2rem;
   border-radius: 12px;
