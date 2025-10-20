@@ -3,6 +3,8 @@ import cors from 'cors';
 import usersRouter from './routes/users.js';
 import ordersRouter from './routes/orders.js';
 import productsRouter from './routes/products.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 
 const app = express();
@@ -17,10 +19,17 @@ app.use(cors({
 
 app.use(express.json());
 
+// Получаем абсолютный путь
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Routes
 app.use('/users', usersRouter);
 app.use('/orders', ordersRouter);
 app.use('/products', productsRouter);
+
+// ✅ Отдаём папку с картинками
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Health check
 app.get('/', (req, res) => {

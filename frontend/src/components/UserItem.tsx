@@ -1,7 +1,6 @@
-import { useDeleteUserMutation, useGetUserOrdersQuery } from '../services/usersApi'
-import type { User } from "../types/user.types.ts"
-import { useState } from "react"
-import {UsOrdersForm} from './OrdersForm.tsx';
+import {useDeleteUserMutation, useGetUserOrdersQuery} from '../services/usersApi'
+import type {User} from "../types/user.types.ts"
+import {useState} from "react"
 
 
 interface UserItemProps {
@@ -54,7 +53,6 @@ export const UserItem = ({ user }: UserItemProps) => {
             {/* Заказы + форма добавления */}
             {showOrders && (
                 <div className="orders">
-                    <UsOrdersForm userId={user.id} /> {/* 👈 форма добавления заказа */}
 
                     {isLoadingOrders && <p>Loading orders...</p>}
                     {error && <p style={{ color: 'red' }}>Error loading orders</p>}

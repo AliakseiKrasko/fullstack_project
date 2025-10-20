@@ -21,7 +21,8 @@ export interface Order {
 export interface Product {
     id: number
     name: string
+    description: string
     price: number
-    description?: string
-    created_at: string
+    image_url: string   // ✅ путь к файлу, например "/uploads/laptop.jpg"
+    created_at?: string // опционально, если есть в БД
 }

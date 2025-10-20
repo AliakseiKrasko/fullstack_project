@@ -27,6 +27,17 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
             <ul>
                 {products?.map((p: Product) => (
                     <li key={p.id}>
+                        <img
+                            src={`http://localhost:3000${p.image_url}`}
+                            alt={p.name}
+                            style={{
+                                width: '100%',
+                                height: '150px',
+                                objectFit: 'cover',
+                                borderRadius: '8px',
+                                marginBottom: '10px',
+                            }}
+                        />
                         <strong>{p.name}</strong> — ${p.price}
                         <p>{p.description}</p>
                         <button onClick={() => handleAddToCart(p)}>
