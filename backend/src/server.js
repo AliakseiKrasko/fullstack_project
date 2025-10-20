@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import usersRouter from './routes/users.js';
 import ordersRouter from './routes/orders.js';
+import productsRouter from './routes/products.js';
+
 
 const app = express();
 const PORT = 3000;
@@ -18,6 +20,7 @@ app.use(express.json());
 // Routes
 app.use('/users', usersRouter);
 app.use('/orders', ordersRouter);
+app.use('/products', productsRouter);
 
 // Health check
 app.get('/', (req, res) => {
