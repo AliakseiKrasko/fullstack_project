@@ -1,19 +1,18 @@
 import { useDeleteUserMutation, useGetUserOrdersQuery } from '../services/usersApi'
 import type { User } from "../types/user.types.ts"
 import { useState } from "react"
+import {UsOrdersForm} from './OrdersForm.tsx';
+
 
 interface UserItemProps {
     user: User
 }
 
 export const UserItem = ({ user }: UserItemProps) => {
-    // для удаления
     const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation()
-
-    // для показа заказов
     const [showOrders, setShowOrders] = useState(false)
     const { data: orders, isLoading: isLoadingOrders, error } = useGetUserOrdersQuery(user.id, {
-        skip: !showOrders, // запрос выполняется только при клике
+        skip: !showOrders,
     })
 
     const handleDelete = async () => {
@@ -52,11 +51,14 @@ export const UserItem = ({ user }: UserItemProps) => {
                 </button>
             </div>
 
-            {/* Отображение заказов */}
+            {/* Заказы + форма добавления */}
             {showOrders && (
                 <div className="orders">
+                    <UsOrdersForm userId={user.id} /> {/* 👈 форма добавления заказа */}
+
                     {isLoadingOrders && <p>Loading orders...</p>}
                     {error && <p style={{ color: 'red' }}>Error loading orders</p>}
+
                     {orders && orders.length > 0 ? (
                         <ul>
                             {orders.map((order) => (
