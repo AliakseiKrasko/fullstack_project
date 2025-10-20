@@ -1,4 +1,4 @@
-import {useDeleteUserMutation, useGetUserOrdersQuery} from '../services/usersApi'
+import {useDeleteOrderMutation, useDeleteUserMutation, useGetUserOrdersQuery} from '../services/usersApi'
 import type {User} from "../types/user.types.ts"
 import {useState} from "react"
 
@@ -13,6 +13,7 @@ export const UserItem = ({ user }: UserItemProps) => {
     const { data: orders, isLoading: isLoadingOrders, error } = useGetUserOrdersQuery(user.id, {
         skip: !showOrders,
     })
+    const [deleteOrder] = useDeleteOrderMutation()
 
     const handleDelete = async () => {
         if (window.confirm(`Удалить пользователя ${user.name}?`)) {
@@ -58,12 +59,20 @@ export const UserItem = ({ user }: UserItemProps) => {
                     {error && <p style={{ color: 'red' }}>Error loading orders</p>}
 
                     {orders && orders.length > 0 ? (
-                        <ul>
+                        <ul className="orders-list">
                             {orders.map((order) => (
-                                <li key={order.id}>
-                                    {order.product_name} — ${order.amount}
-                                    <br />
-                                    <small>{new Date(order.order_date).toLocaleString()}</small>
+                                <li key={order.id} className="order-item">
+                                    <div>
+                                        {order.product_name} — ${order.amount}
+                                        <br />
+                                        <small>{new Date(order.order_date).toLocaleString()}</small>
+                                    </div>
+                                    <button
+                                        className="delete-order-btn"
+                                        onClick={() => deleteOrder(order.id)}
+                                    >
+                                        🗑
+                                    </button>
                                 </li>
                             ))}
                         </ul>

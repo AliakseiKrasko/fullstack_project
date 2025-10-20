@@ -483,3 +483,29 @@ nav {
   background: linear-gradient(90deg, #4b36e0, #3a73ff);
   transform: scale(1.05);
 }
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9f9ff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.delete-order-btn {
+  background: #ff4d4f;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.delete-order-btn:hover {
+  background: #d9363e;
+}

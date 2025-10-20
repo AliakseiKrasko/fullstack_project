@@ -42,3 +42,21 @@ export const addOrder = async (req, res) => {
         res.status(500).json({ message: 'Failed to add order' });
     }
 };
+
+// Удалить заказ по ID
+export const deleteOrder = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await pool.query('DELETE FROM orders WHERE id = $1', [id]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        res.status(204).send();
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        res.status(500).json({ message: 'Failed to delete order' });
+    }
+};
