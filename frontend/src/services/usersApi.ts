@@ -1,10 +1,10 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-import type {Order, User} from "../types/user.types.ts";
+import type {Order, Product, User} from "../types/user.types.ts";
 
 export const usersApi = createApi({
     reducerPath: 'usersApi',
     baseQuery: fetchBaseQuery({baseUrl: 'http://localhost:3000'}),
-    tagTypes: ['Users', 'Orders'],
+    tagTypes: ['Users', 'Orders', 'Products'],
     endpoints: (builder) => ({
 
         // --- USERS ---
@@ -44,6 +44,12 @@ export const usersApi = createApi({
             }),
             invalidatesTags: ['Orders'], // 👈 чтобы обновлялся список заказов
         }),
+
+        // --- PRODUCTS ---
+        getProducts: builder.query<Product[], void>({
+            query: () => '/products',
+            providesTags: ['Products'],
+        }),
     }),
 });
 
@@ -53,4 +59,5 @@ export const {
     useDeleteUserMutation,
     useGetUserOrdersQuery,
     useAddOrderMutation,
+    useGetProductsQuery,
 } = usersApi;
