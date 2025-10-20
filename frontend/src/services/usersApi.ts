@@ -1,15 +1,18 @@
-import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-import type {Order, User} from "../types/user.types.ts";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { Order, User } from "../types/user.types.ts";
 
 export const usersApi = createApi({
     reducerPath: 'usersApi',
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3000' }),
     tagTypes: ['Users', 'Orders'],
     endpoints: (builder) => ({
+
+        // --- USERS ---
         getUsers: builder.query<User[], void>({
             query: () => '/users',
             providesTags: ['Users'],
         }),
+
         createUser: builder.mutation({
             query: (userData) => ({
                 url: '/users',
@@ -18,6 +21,7 @@ export const usersApi = createApi({
             }),
             invalidatesTags: ['Users'],
         }),
+
         deleteUser: builder.mutation({
             query: (id) => ({
                 url: `/users/${id}`,
@@ -25,9 +29,20 @@ export const usersApi = createApi({
             }),
             invalidatesTags: ['Users'],
         }),
+
+        // --- ORDERS ---
         getUserOrders: builder.query<Order[], number>({
-            query: (userId) => `/users/${userId}/orders`,
+            query: (userId) => `/orders/${userId}`,
             providesTags: ['Orders'],
+        }),
+
+        addOrder: builder.mutation({
+            query: (order) => ({
+                url: '/orders',
+                method: 'POST',
+                body: order,
+            }),
+            invalidatesTags: ['Orders'], // 👈 чтобы обновлялся список заказов
         }),
     }),
 });
@@ -37,4 +52,5 @@ export const {
     useCreateUserMutation,
     useDeleteUserMutation,
     useGetUserOrdersQuery,
+    useAddOrderMutation,
 } = usersApi;
