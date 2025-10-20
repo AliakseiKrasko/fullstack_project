@@ -26,3 +26,16 @@ export const deleteProduct = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete product' });
     }
 };
+export const createProduct = async (req, res) => {
+    try {
+        const { name, description, price, image_url } = req.body;
+        const result = await pool.query(
+            'INSERT INTO products (name, description, price, image_url) VALUES ($1, $2, $3, $4) RETURNING *',
+            [name, description, price, image_url]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error creating product:', error);
+        res.status(500).json({ message: 'Failed to create product' });
+    }
+};

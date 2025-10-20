@@ -1,5 +1,6 @@
 import { useGetProductsQuery, useAddOrderMutation, useDeleteProductMutation } from '../services/usersApi'
 import type { Product } from '../types/user.types'
+import {ProductForm} from '../components/ProductForm.tsx';
 
 export const ProductsPage = ({ userId }: { userId: number }) => {
     const { data: products, isLoading, error } = useGetProductsQuery(undefined)
@@ -36,6 +37,7 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
     return (
         <div className="products-page">
             <h2>Products</h2>
+            <ProductForm />
             <ul>
                 {products?.map((p: Product) => (
                     <li key={p.id} className="product-card">
