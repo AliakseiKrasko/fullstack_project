@@ -32,6 +32,30 @@
   gap: 4rem;
 }
 
+/* ======= Навигация ======= */
+nav {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.link {
+  text-decoration: none;
+  color: white;
+  background: linear-gradient(90deg, #7b5cff, #4f8cff);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.link:hover {
+  background: linear-gradient(90deg, #6b48ff, #3a73ff);
+  transform: translateY(-2px);
+}
+
 /* User Form */
 .user-form {
   width: 40%;
@@ -349,4 +373,53 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.products-page {
+  text-align: center;
+}
+
+.products-page h2 {
+  font-size: 1.6rem;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+.products-page ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+}
+
+.products-page li {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.products-page li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.products-page button {
+  background: linear-gradient(90deg, #5a44f2, #4f8cff);
+  border: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.products-page button:hover {
+  background: linear-gradient(90deg, #4b36e0, #3a73ff);
+  transform: scale(1.05);
 }
