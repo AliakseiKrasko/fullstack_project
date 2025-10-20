@@ -509,3 +509,39 @@ nav {
 .delete-order-btn:hover {
   background: #d9363e;
 }
+.product-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.add-btn {
+  background: linear-gradient(90deg, #5a44f2, #4f8cff);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-btn:hover {
+  background: linear-gradient(90deg, #4837d0, #3a73ff);
+  transform: scale(1.05);
+}
+
+.delete-btn {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  background: #d9363e;
+  transform: scale(1.05);
+}

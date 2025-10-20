@@ -57,6 +57,13 @@ export const usersApi = createApi({
             }),
             invalidatesTags: ['Orders'], // ✅ обновляем список заказов после удаления
         }),
+        deleteProduct: builder.mutation({
+            query: (id: number) => ({
+                url: `/products/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Products'], // обновляем список после удаления
+        }),
     }),
 });
 
@@ -68,4 +75,5 @@ export const {
     useAddOrderMutation,
     useGetProductsQuery,
     useDeleteOrderMutation,
+    useDeleteProductMutation,
 } = usersApi;
