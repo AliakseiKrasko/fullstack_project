@@ -4,6 +4,7 @@ import { UserList } from './components/UserList'
 import { ProductsPage } from './pages/ProductsPage'
 import { AuthPage } from './pages/AuthPage'
 import './App.css'
+import type {JSX} from 'react'
 
 /* 🔐 Компонент защиты маршрутов */
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
