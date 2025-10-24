@@ -3,9 +3,35 @@ import type {Order, Product, User} from "../types/user.types.ts";
 
 export const usersApi = createApi({
     reducerPath: 'usersApi',
-    baseQuery: fetchBaseQuery({baseUrl: 'http://localhost:3000'}),
-    tagTypes: ['Users', 'Orders', 'Products'],
+    baseQuery: fetchBaseQuery({
+        baseUrl: 'http://localhost:3000',
+        prepareHeaders: (headers) => {
+            const token = localStorage.getItem('token')
+            if (token) {
+                headers.set('authorization', `Bearer ${token}`)
+            }
+            return headers
+        },
+    }),
+    tagTypes: ['Users', 'Products', 'Orders'],
     endpoints: (builder) => ({
+        // 🔹 регистрация
+        registerUser: builder.mutation({
+            query: (body) => ({
+                url: '/auth/register',
+                method: 'POST',
+                body,
+            }),
+        }),
+
+        // 🔹 логин
+        loginUser: builder.mutation({
+            query: (body) => ({
+                url: '/auth/login',
+                method: 'POST',
+                body,
+            }),
+        }),
 
         // --- USERS ---
         getUsers: builder.query<User[], void>({
@@ -76,6 +102,8 @@ export const usersApi = createApi({
 });
 
 export const {
+    useRegisterUserMutation,
+    useLoginUserMutation,
     useGetUsersQuery,
     useCreateUserMutation,
     useDeleteUserMutation,
