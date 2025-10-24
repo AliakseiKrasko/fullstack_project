@@ -22,11 +22,13 @@ app.use(express.json());
 // Получаем абсолютный путь
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+import authRouter from './routes/auth.js'
 
 // Routes
 app.use('/users', usersRouter);
 app.use('/orders', ordersRouter);
 app.use('/products', productsRouter);
+app.use('/auth', authRouter)
 
 // ✅ Отдаём папку с картинками
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
