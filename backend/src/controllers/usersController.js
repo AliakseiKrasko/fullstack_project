@@ -9,7 +9,7 @@ const isValidEmail = (email) => {
 // Получить всех пользователей
 export const getAllUsers = async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
+        const result = await pool.query('SELECT * FROM users_auth ORDER BY created_at DESC');
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching users:', error);

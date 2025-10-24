@@ -4,7 +4,7 @@ import { UserList } from './components/UserList'
 import { ProductsPage } from './pages/ProductsPage'
 import { AuthPage } from './pages/AuthPage'
 import './App.css'
-import type {JSX} from 'react'
+import type { JSX } from 'react'
 
 /* 🔐 Компонент защиты маршрутов */
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -45,7 +45,7 @@ function App() {
                     {/* Страница авторизации */}
                     <Route path="/auth" element={<AuthPage />} />
 
-                    {/* Защищённые маршруты */}
+                    {/* Users — защищённый маршрут */}
                     <Route
                         path="/users"
                         element={
@@ -57,14 +57,9 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
-                    <Route
-                        path="/products"
-                        element={
-                            <ProtectedRoute>
-                                <ProductsPage userId={1} />
-                            </ProtectedRoute>
-                        }
-                    />
+
+                    {/* Products — открытая страница 👇 */}
+                    <Route path="/products" element={<ProductsPage userId={1} />} />
 
                     {/* Главная */}
                     <Route path="/" element={<p>Welcome! Choose a section 👆</p>} />

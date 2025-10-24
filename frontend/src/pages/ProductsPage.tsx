@@ -1,13 +1,22 @@
 import { useGetProductsQuery, useAddOrderMutation, useDeleteProductMutation } from '../services/usersApi'
 import type { Product } from '../types/user.types'
-import {ProductForm} from '../components/ProductForm.tsx';
+import { ProductForm } from '../components/ProductForm'
 
 export const ProductsPage = ({ userId }: { userId: number }) => {
     const { data: products, isLoading, error } = useGetProductsQuery(undefined)
     const [addOrder] = useAddOrderMutation()
     const [deleteProduct] = useDeleteProductMutation()
 
+    const token = localStorage.getItem('token') // 👈 проверяем авторизацию
+    const isAuth = Boolean(token)
+
     const handleAddToCart = async (product: Product) => {
+        if (!isAuth) {
+            alert('⚠ Please log in to buy products!')
+            window.location.href = '/auth'
+            return
+        }
+
         try {
             await addOrder({
                 user_id: userId,
@@ -21,6 +30,7 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
     }
 
     const handleDeleteProduct = async (id: number) => {
+        if (!isAuth) return
         if (window.confirm('Are you sure you want to delete this product?')) {
             try {
                 await deleteProduct(id).unwrap()
@@ -37,8 +47,11 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
     return (
         <div className="products-page">
             <h2>Products</h2>
-            <ProductForm />
-            <ul>
+
+            {/* Только авторизованный может добавлять */}
+            {isAuth && <ProductForm />}
+
+            <ul className="products-grid">
                 {products?.map((p: Product) => (
                     <li key={p.id} className="product-card">
                         <img
@@ -47,7 +60,7 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
                             style={{
                                 width: '100%',
                                 height: '200px',
-                                objectFit: 'contain',   // 👈 вот это исправление
+                                objectFit: 'contain',
                                 borderRadius: '8px',
                                 backgroundColor: '#fff',
                                 padding: '8px',
@@ -59,11 +72,18 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
 
                         <div className="product-buttons">
                             <button className="add-btn" onClick={() => handleAddToCart(p)}>
-                                Add to Cart
+                                {isAuth ? 'Add to Cart' : 'Buy'}
                             </button>
-                            <button className="delete-btn" onClick={() => handleDeleteProduct(p.id)}>
-                                Delete
-                            </button>
+
+                            {/* Только авторизованный видит кнопку удаления */}
+                            {isAuth && (
+                                <button
+                                    className="delete-btn"
+                                    onClick={() => handleDeleteProduct(p.id)}
+                                >
+                                    Delete
+                                </button>
+                            )}
                         </div>
                     </li>
                 ))}
