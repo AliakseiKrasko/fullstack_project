@@ -23,17 +23,15 @@ export const getUserOrders = async (req, res) => {
 // Добавить заказ пользователю
 export const addOrder = async (req, res) => {
     try {
-        const { user_id, product_name, amount } = req.body;
+        const { user_id, product_name, amount, image_url } = req.body; // ✅ добавили image_url
 
-        // Проверка входных данных
         if (!user_id || !product_name || !amount) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
-        // Вставка в базу
         const result = await pool.query(
-            'INSERT INTO orders (user_id, product_name, amount) VALUES ($1, $2, $3) RETURNING *',
-            [user_id, product_name, amount]
+            'INSERT INTO orders (user_id, product_name, amount, image_url) VALUES ($1, $2, $3, $4) RETURNING *',
+            [user_id, product_name, amount, image_url] // ✅ передаём image_url
         );
 
         res.status(201).json(result.rows[0]);

@@ -22,7 +22,9 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
                 user_id: userId,
                 product_name: product.name,
                 amount: product.price,
+                image_url: product.image_url, // ✅ добавили
             }).unwrap()
+
             alert(`✅ ${product.name} added to cart!`)
         } catch (err) {
             console.error('Error adding to cart:', err)

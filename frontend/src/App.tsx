@@ -5,6 +5,7 @@ import { ProductsPage } from './pages/ProductsPage'
 import { AuthPage } from './pages/AuthPage'
 import './App.css'
 import type { JSX } from 'react'
+import {CartPage} from './pages/CartPage.tsx';
 
 /* 🔐 Компонент защиты маршрутов */
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -34,6 +35,7 @@ function App() {
                     <Link to="/auth" className="link">🔑 Auth</Link>{' | '}
                     <Link to="/users" className="link">👤 Users</Link>{' | '}
                     <Link to="/products" className="link">🛒 Products</Link>{' | '}
+                    <Link to="/cart" className="link">🛍 Cart</Link>{' | '}
                     <button onClick={handleLogout} className="logout-btn">
                         🚪 Logout
                     </button>
@@ -63,6 +65,7 @@ function App() {
 
                     {/* Главная */}
                     <Route path="/" element={<p>Welcome! Choose a section 👆</p>} />
+                    <Route path="/cart" element={<CartPage userId={1} />} />
                 </Routes>
             </main>
         </div>

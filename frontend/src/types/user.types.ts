@@ -11,11 +11,12 @@ export interface CreateUserDto {
 }
 
 export interface Order {
-    id: number;
-    user_id: number;
-    product_name: string;
-    amount: number;
-    order_date: string;
+    id: number
+    user_id: number
+    product_name: string
+    amount: number
+    order_date: string
+    image_url?: string
 }
 
 export interface Product {
