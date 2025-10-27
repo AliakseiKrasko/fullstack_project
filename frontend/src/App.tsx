@@ -35,7 +35,6 @@ function App() {
 
                 {/* 🔗 Навигация */}
                 <nav>
-                    {/* 👇 Если пользователь не авторизован */}
                     {!isAuth ? (
                         <>
                             <Link to="/auth" className="link">🔑 Auth</Link>{' | '}
@@ -85,8 +84,8 @@ function App() {
                         }
                     />
 
-                    {/* 🏠 Главная */}
-                    <Route path="/" element={<p>Welcome! Choose a section 👆</p>} />
+                    {/* 🏠 Главная — теперь редирект на /products */}
+                    <Route path="/" element={<Navigate to="/products" replace />} />
                 </Routes>
             </main>
         </div>
