@@ -3,9 +3,9 @@ import { UserForm } from './components/UserForm'
 import { UserList } from './components/UserList'
 import { ProductsPage } from './pages/ProductsPage'
 import { AuthPage } from './pages/AuthPage'
+import { CartPage } from './pages/CartPage'
 import './App.css'
 import type { JSX } from 'react'
-import {CartPage} from './pages/CartPage.tsx';
 
 /* 🔐 Компонент защиты маршрутов */
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -18,6 +18,9 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 }
 
 function App() {
+    const token = localStorage.getItem('token')
+    const isAuth = Boolean(token)
+
     const handleLogout = () => {
         localStorage.removeItem('token')
         alert('👋 Logged out successfully')
@@ -30,24 +33,33 @@ function App() {
                 <h1>User Management System</h1>
                 <p className="subtitle">Express + RTK Query</p>
 
-                {/* Навигация */}
+                {/* 🔗 Навигация */}
                 <nav>
-                    <Link to="/auth" className="link">🔑 Auth</Link>{' | '}
-                    <Link to="/users" className="link">👤 Users</Link>{' | '}
-                    <Link to="/products" className="link">🛒 Products</Link>{' | '}
-                    <Link to="/cart" className="link">🛍 Cart</Link>{' | '}
-                    <button onClick={handleLogout} className="logout-btn">
-                        🚪 Logout
-                    </button>
+                    {/* 👇 Если пользователь не авторизован */}
+                    {!isAuth ? (
+                        <>
+                            <Link to="/auth" className="link">🔑 Auth</Link>{' | '}
+                            <Link to="/products" className="link">🛒 Products</Link>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/auth" className="link">🔑 Auth</Link>{' | '}
+                            <Link to="/users" className="link">👤 Users</Link>{' | '}
+                            <Link to="/products" className="link">🛒 Products</Link>{' | '}
+                            <Link to="/cart" className="link">🛍 Cart</Link>{' | '}
+                            <button onClick={handleLogout} className="logout-btn">
+                                🚪 Logout
+                            </button>
+                        </>
+                    )}
                 </nav>
             </header>
 
             <main className="app-main">
                 <Routes>
-                    {/* Страница авторизации */}
                     <Route path="/auth" element={<AuthPage />} />
 
-                    {/* Users — защищённый маршрут */}
+                    {/* 👤 Users — защищённый маршрут */}
                     <Route
                         path="/users"
                         element={
@@ -60,12 +72,21 @@ function App() {
                         }
                     />
 
-                    {/* Products — открытая страница 👇 */}
+                    {/* 🛒 Products — доступна всем */}
                     <Route path="/products" element={<ProductsPage userId={1} />} />
 
-                    {/* Главная */}
+                    {/* 🛍 Cart — только авторизованным */}
+                    <Route
+                        path="/cart"
+                        element={
+                            <ProtectedRoute>
+                                <CartPage userId={1} />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* 🏠 Главная */}
                     <Route path="/" element={<p>Welcome! Choose a section 👆</p>} />
-                    <Route path="/cart" element={<CartPage userId={1} />} />
                 </Routes>
             </main>
         </div>
