@@ -1,23 +1,25 @@
-import express from 'express';
+import express from 'express'
 import {
     getAllUsers,
     createUser,
     deleteUser,
     getUserOrders
-} from '../controllers/usersController.js';
+} from '../controllers/usersController.js'
 
-const router = express.Router();
+import { verifyToken, isAdmin } from '../middleware/authMiddleware.js' // 👈 добавляем middleware
 
-// GET /users - получить всех пользователей
-router.get('/', getAllUsers);
+const router = express.Router()
 
-// POST /users - создать пользователя
-router.post('/', createUser);
+// 👑 Только админ может видеть всех пользователей
+router.get('/', verifyToken, isAdmin, getAllUsers)
 
-// DELETE /users/:id - удалить пользователя
-router.delete('/:id', deleteUser);
+// 👑 Только админ может создавать пользователей
+router.post('/', verifyToken, isAdmin, createUser)
 
-// ✅ Новый маршрут — получить заказы конкретного пользователя
-router.get('/:id/orders', getUserOrders);
+// 👑 Только админ может удалять пользователей
+router.delete('/:id', verifyToken, isAdmin, deleteUser)
 
-export default router;
+// 👤 Любой авторизованный пользователь может получить свои заказы
+router.get('/:id/orders', verifyToken, getUserOrders)
+
+export default router

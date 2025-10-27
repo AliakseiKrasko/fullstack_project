@@ -4,6 +4,7 @@ import { UserList } from './components/UserList'
 import { ProductsPage } from './pages/ProductsPage'
 import { AuthPage } from './pages/AuthPage'
 import { CartPage } from './pages/CartPage'
+import { AdminDashboard } from './pages/AdminDashboard' // ✅ импортируем админку
 import './App.css'
 import type { JSX } from 'react'
 
@@ -17,12 +18,26 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     return children
 }
 
+/* 👑 Отдельный компонент для защиты маршрута администратора */
+const AdminRoute = ({ children }: { children: JSX.Element }) => {
+    const token = localStorage.getItem('token')
+    const role = localStorage.getItem('role')
+    if (!token || role !== 'admin') {
+        alert('🚫 Access denied. Admins only.')
+        return <Navigate to="/products" replace />
+    }
+    return children
+}
+
 function App() {
     const token = localStorage.getItem('token')
+    const userRole = localStorage.getItem('role')
     const isAuth = Boolean(token)
+    const isAdmin = userRole === 'admin'
 
     const handleLogout = () => {
         localStorage.removeItem('token')
+        localStorage.removeItem('role')
         alert('👋 Logged out successfully')
         window.location.href = '/auth'
     }
@@ -42,8 +57,14 @@ function App() {
                         </>
                     ) : (
                         <>
-                            <Link to="/auth" className="link">🔑 Auth</Link>{' | '}
-                            <Link to="/users" className="link">👤 Users</Link>{' | '}
+                            {/* 👑 Только админ видит Users и Admin Dashboard */}
+                            {isAdmin && (
+                                <>
+                                    <Link to="/users" className="link">👤 Users</Link>{' | '}
+                                    <Link to="/admin" className="link">⚙️ Admin</Link>{' | '}
+                                </>
+                            )}
+
                             <Link to="/products" className="link">🛒 Products</Link>{' | '}
                             <Link to="/cart" className="link">🛍 Cart</Link>{' | '}
                             <button onClick={handleLogout} className="logout-btn">
@@ -56,22 +77,33 @@ function App() {
 
             <main className="app-main">
                 <Routes>
+                    {/* 🔑 Авторизация */}
                     <Route path="/auth" element={<AuthPage />} />
 
-                    {/* 👤 Users — защищённый маршрут */}
+                    {/* 👤 Users — только для администратора */}
                     <Route
                         path="/users"
                         element={
-                            <ProtectedRoute>
+                            <AdminRoute>
                                 <>
                                     <UserForm />
                                     <UserList />
                                 </>
-                            </ProtectedRoute>
+                            </AdminRoute>
                         }
                     />
 
-                    {/* 🛒 Products — доступна всем */}
+                    {/* ⚙️ Админ-панель */}
+                    <Route
+                        path="/admin"
+                        element={
+                            <AdminRoute>
+                                <AdminDashboard />
+                            </AdminRoute>
+                        }
+                    />
+
+                    {/* 🛒 Products — открыто всем */}
                     <Route path="/products" element={<ProductsPage userId={1} />} />
 
                     {/* 🛍 Cart — только авторизованным */}
@@ -84,7 +116,7 @@ function App() {
                         }
                     />
 
-                    {/* 🏠 Главная — теперь редирект на /products */}
+                    {/* 🏠 Главная → редирект на /products */}
                     <Route path="/" element={<Navigate to="/products" replace />} />
                 </Routes>
             </main>
