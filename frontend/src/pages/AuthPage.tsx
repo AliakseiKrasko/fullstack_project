@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useRegisterUserMutation, useLoginUserMutation } from '../services/usersApi'
+import { jwtDecode } from 'jwt-decode'
 
 export const AuthPage = () => {
     const [isRegister, setIsRegister] = useState(true)
@@ -23,9 +24,22 @@ export const AuthPage = () => {
                     email: form.email,
                     password: form.password,
                 }).unwrap()
+
+                // 💾 Сохраняем токен
                 localStorage.setItem('token', res.token)
+
+                // 🧠 Декодируем токен и сохраняем роль
+                const decoded = jwtDecode<{ role: string }>(res.token)
+                localStorage.setItem('role', decoded.role)
+
                 alert('✅ Logged in successfully!')
-                window.location.href = '/products'
+
+                // 🎯 Автоматический редирект
+                if (decoded.role === 'admin') {
+                    window.location.href = '/admin'
+                } else {
+                    window.location.href = '/products'
+                }
             }
         } catch (err: any) {
             alert(`❌ ${err?.data?.message || 'Something went wrong'}`)
