@@ -2,7 +2,7 @@ import pool from '../config/database.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = 'super_secret_key' // ⚠️ потом вынесем в .env
+const JWT_SECRET = process.env.JWT_SECRET
 
 // ✅ Регистрация
 export const registerUser = async (req, res) => {
