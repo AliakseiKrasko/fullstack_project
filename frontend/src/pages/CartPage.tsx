@@ -1,18 +1,33 @@
 import { useGetUserOrdersQuery, useDeleteOrderMutation } from '../services/usersApi'
 import { useNavigate } from 'react-router-dom'
 import './CartPage.css'
+import { jwtDecode } from 'jwt-decode'
 
-interface CartPageProps {
-    userId: number
+interface DecodedToken {
+    id: number
+    email: string
+    role: string
+    exp: number
 }
 
-export const CartPage = ({ userId }: CartPageProps) => {
+
+export const CartPage = () => {
     const token = localStorage.getItem('token')
     const isAuth = Boolean(token)
     const navigate = useNavigate()
 
-    const { data: orders, isLoading, error, refetch } = useGetUserOrdersQuery(userId, {
-        skip: !isAuth,
+    let userId: number | null = null
+    if (token) {
+        try {
+            const decoded = jwtDecode<DecodedToken>(token)
+            userId = decoded.id
+        } catch (err) {
+            console.error('Invalid token:', err)
+        }
+    }
+
+    const { data: orders, isLoading, error, refetch } = useGetUserOrdersQuery(userId!, {
+        skip: !isAuth || !userId,
     })
     const [deleteOrder] = useDeleteOrderMutation()
 

@@ -3,15 +3,12 @@ import pool from '../config/database.js'
 // 📧 Проверка email
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
-// 👤 Получить всех пользователей (только для admin)
+// 👤 Получить всех пользователей (только админ)
 export const getAllUsers = async (req, res) => {
     try {
-        // req.user заполняется в middleware verifyToken
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Access denied: Admins only' })
-        }
-
-        const result = await pool.query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC')
+        const result = await pool.query(
+            'SELECT id, name, email, role, created_at FROM users_auth ORDER BY created_at DESC'
+        )
         res.json(result.rows)
     } catch (error) {
         console.error('Error fetching users:', error)
@@ -27,20 +24,13 @@ export const createUser = async (req, res) => {
         if (!name?.trim() || !email?.trim()) {
             return res.status(400).json({ message: 'Name and email are required' })
         }
-
         if (!isValidEmail(email)) {
             return res.status(400).json({ message: 'Email must be valid' })
         }
 
-        if (name.length > 100) return res.status(400).json({ message: 'Name too long' })
-        if (email.length > 150) return res.status(400).json({ message: 'Email too long' })
-
-        // Только админ может задавать роль
-        const userRole = req.user.role === 'admin' ? role : 'user'
-
         const result = await pool.query(
-            'INSERT INTO users (name, email, role) VALUES ($1, $2, $3) RETURNING id, name, email, role, created_at',
-            [name.trim(), email.trim(), userRole]
+            'INSERT INTO users_auth (name, email, role) VALUES ($1, $2, $3) RETURNING id, name, email, role, created_at',
+            [name.trim(), email.trim(), role]
         )
 
         res.status(201).json(result.rows[0])
@@ -56,16 +46,12 @@ export const createUser = async (req, res) => {
 // ❌ Удалить пользователя (только админ)
 export const deleteUser = async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Access denied: Admins only' })
-        }
-
         const { id } = req.params
         if (!id || isNaN(id)) {
             return res.status(400).json({ message: 'Invalid user ID' })
         }
 
-        const result = await pool.query('DELETE FROM users WHERE id = $1', [id])
+        const result = await pool.query('DELETE FROM users_auth WHERE id = $1', [id])
 
         if (result.rowCount === 0) {
             return res.status(404).json({ message: `User with ID ${id} not found` })
@@ -87,8 +73,7 @@ export const getUserOrders = async (req, res) => {
             return res.status(400).json({ message: 'Invalid user ID' })
         }
 
-        // Если не админ — разрешаем смотреть только свои заказы
-        if (req.user.role !== 'admin' && req.user.id !== parseInt(id)) {
+        if (req.user.role !== 'admin' && req.user.id !== parseInt(id, 10)) {
             return res.status(403).json({ message: 'Access denied: You can view only your orders' })
         }
 

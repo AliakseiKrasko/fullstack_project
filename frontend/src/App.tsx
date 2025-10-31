@@ -111,7 +111,7 @@ function App() {
                         path="/cart"
                         element={
                             <ProtectedRoute>
-                                <CartPage userId={1} />
+                                <CartPage />
                             </ProtectedRoute>
                         }
                     />

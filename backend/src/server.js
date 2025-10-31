@@ -5,7 +5,8 @@ import ordersRouter from './routes/orders.js';
 import productsRouter from './routes/products.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import orderRoutes from './routes/orders.js'
+import dotenv from 'dotenv'
+dotenv.config({ path: './.env' })
 
 
 const app = express();
@@ -30,7 +31,7 @@ app.use('/users', usersRouter);
 app.use('/orders', ordersRouter);
 app.use('/products', productsRouter);
 app.use('/auth', authRouter)
-app.use('/orders', orderRoutes)
+
 
 // ✅ Отдаём папку с картинками
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

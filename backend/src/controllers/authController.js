@@ -1,7 +1,10 @@
 import pool from '../config/database.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
 
+
+dotenv.config()
 const JWT_SECRET = process.env.JWT_SECRET
 
 // ✅ Регистрация

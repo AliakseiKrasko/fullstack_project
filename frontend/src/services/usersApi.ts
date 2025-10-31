@@ -1,5 +1,5 @@
-import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-import type {Order, Product, User} from "../types/user.types.ts";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import type { Order, Product, User } from "../types/user.types.ts"
 
 export const usersApi = createApi({
     reducerPath: 'usersApi',
@@ -8,7 +8,7 @@ export const usersApi = createApi({
         prepareHeaders: (headers) => {
             const token = localStorage.getItem('token')
             if (token) {
-                headers.set('authorization', `Bearer ${token}`)
+                headers.set('authorization', `Bearer ${token}`) // ✅ исправлено
             }
             return headers
         },
@@ -50,7 +50,7 @@ export const usersApi = createApi({
 
         deleteUser: builder.mutation({
             query: (id) => ({
-                url: `/users/${id}`,
+                url: `/users/${id}`, // ✅ исправлено
                 method: 'DELETE',
             }),
             invalidatesTags: ['Users'],
@@ -58,7 +58,7 @@ export const usersApi = createApi({
 
         // --- ORDERS ---
         getUserOrders: builder.query<Order[], number>({
-            query: (userId) => `/users/${userId}/orders`,
+            query: (userId) => `/users/${userId}/orders`, // ✅ исправлено
             providesTags: ['Orders'],
         }),
 
@@ -68,7 +68,15 @@ export const usersApi = createApi({
                 method: 'POST',
                 body: order,
             }),
-            invalidatesTags: ['Orders'], // 👈 чтобы обновлялся список заказов
+            invalidatesTags: ['Orders'],
+        }),
+
+        deleteOrder: builder.mutation({
+            query: (id: number) => ({
+                url: `/orders/${id}`, // ✅ исправлено
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Orders'],
         }),
 
         // --- PRODUCTS ---
@@ -76,20 +84,15 @@ export const usersApi = createApi({
             query: () => '/products',
             providesTags: ['Products'],
         }),
-        deleteOrder: builder.mutation({
-            query: (id: number) => ({
-                url: `/orders/${id}`,
-                method: 'DELETE',
-            }),
-            invalidatesTags: ['Orders'], // ✅ обновляем список заказов после удаления
-        }),
+
         deleteProduct: builder.mutation({
             query: (id: number) => ({
-                url: `/products/${id}`,
+                url: `/products/${id}`, // ✅ исправлено
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Products'], // обновляем список после удаления
+            invalidatesTags: ['Products'],
         }),
+
         addProduct: builder.mutation({
             query: (product) => ({
                 url: '/products',
@@ -99,7 +102,7 @@ export const usersApi = createApi({
             invalidatesTags: ['Products'],
         }),
     }),
-});
+})
 
 export const {
     useRegisterUserMutation,
@@ -113,4 +116,4 @@ export const {
     useDeleteOrderMutation,
     useDeleteProductMutation,
     useAddProductMutation,
-} = usersApi;
+} = usersApi
