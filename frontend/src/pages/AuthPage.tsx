@@ -25,11 +25,12 @@ export const AuthPage = () => {
                     password: form.password,
                 }).unwrap()
 
-                // 💾 Сохраняем токен
-                localStorage.setItem('token', res.token)
+                // 💾 Сохраняем токены
+                localStorage.setItem('token', res.accessToken)
+                localStorage.setItem('refreshToken', res.refreshToken)
 
                 // 🧠 Декодируем токен и сохраняем роль
-                const decoded = jwtDecode<{ role: string }>(res.token)
+                const decoded = jwtDecode<{ role: string }>(res.accessToken)
                 localStorage.setItem('role', decoded.role)
 
                 alert('✅ Logged in successfully!')
@@ -79,8 +80,12 @@ export const AuthPage = () => {
 
                 <button type="submit" disabled={regLoading || logLoading}>
                     {isRegister
-                        ? regLoading ? 'Registering...' : 'Register'
-                        : logLoading ? 'Logging in...' : 'Login'}
+                        ? regLoading
+                            ? 'Registering...'
+                            : 'Register'
+                        : logLoading
+                            ? 'Logging in...'
+                            : 'Login'}
                 </button>
             </form>
 

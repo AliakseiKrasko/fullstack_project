@@ -1,13 +1,12 @@
-import express from 'express';
-import {addOrder, deleteOrder, getUserOrders} from '../controllers/ordersController.js';
+import express from 'express'
+import { addOrder, deleteOrder, getUserOrders } from '../controllers/ordersController.js'
+import {verifyToken} from "../middleware/authMiddleware.js";
 
-const router = express.Router();
 
-// GET /orders/:id — заказы пользователя
-router.get('/:id', getUserOrders);
-// Добавить заказ пользователю
-router.post('/', addOrder)
+const router = express.Router()
 
-router.delete('/:id', deleteOrder);
+router.get('/:id', verifyToken, getUserOrders)
+router.post('/', verifyToken, addOrder)
+router.delete('/:id', verifyToken, deleteOrder)
 
-export default router;
+export default router
