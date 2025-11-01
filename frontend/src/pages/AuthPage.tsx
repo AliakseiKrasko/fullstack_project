@@ -46,8 +46,13 @@ export const AuthPage = () => {
                     window.location.href = '/products'
                 }
             }
-        } catch (err: any) {
-            notifyError(`❌ ${err?.data?.message || 'Something went wrong'}`)
+        } catch (err: unknown) {
+            if (typeof err === 'object' && err && 'data' in err) {
+                const error = err as { data?: { message?: string } }
+                notifyError(`❌ ${error.data?.message || 'Something went wrong'}`)
+            } else {
+                notifyError('❌ Unexpected error occurred')
+            }
         }
     }
 

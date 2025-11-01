@@ -1,19 +1,17 @@
-import { useState } from 'react'
-import { jwtDecode } from 'jwt-decode'
+import {jwtDecode} from 'jwt-decode'
 import {
-    useGetProductsQuery,
     useAddOrderMutation,
     useDeleteProductMutation,
+    useGetProductsQuery,
     useUpdateProductMutation,
 } from '../services/usersApi'
-import type { Product } from '../types/user.types'
-import { ProductForm } from '../components/ProductForm'
-import {
-    notifyError,
-    notifySuccess,
-    notifyInfo,
-    confirmAction,
-} from '../utils/alerts'
+import type {Product} from '../types/user.types'
+import {ProductForm} from '../components/ProductForm'
+import {confirmAction, notifyError, notifyInfo, notifySuccess,} from '../utils/alerts'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 export const ProductsPage = () => {
     const { data: products, isLoading, error } = useGetProductsQuery()
@@ -35,14 +33,6 @@ export const ProductsPage = () => {
             console.error('Invalid token')
         }
     }
-
-    const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-    const [editForm, setEditForm] = useState({
-        name: '',
-        description: '',
-        price: '',
-        image_url: '',
-    })
 
     // 🛒 Добавление в корзину
     const handleAddToCart = async (product: Product) => {
@@ -78,41 +68,59 @@ export const ProductsPage = () => {
 
         try {
             await deleteProduct(id).unwrap()
-            notifySuccess('✅ Product deleted successfully!')
+            notifySuccess('Product deleted successfully!')
         } catch (err) {
             console.error('Error deleting product:', err)
             notifyError('❌ Failed to delete product')
         }
     }
 
-    const startEdit = (product: Product) => {
-        setEditingProduct(product)
-        setEditForm({
-            name: product.name,
-            description: product.description,
-            price: String(product.price),
-            image_url: product.image_url,
+    // ✏️ Редактирование товара в модальном окне
+    const handleEditProduct = (product: Product) => {
+        MySwal.fire({
+            title: `Edit Product: ${product.name}`,
+            html: `
+        <input id="name" class="swal2-input" placeholder="Name" value="${product.name}">
+        <input id="description" class="swal2-input" placeholder="Description" value="${product.description}">
+        <input id="price" type="number" step="0.01" class="swal2-input" placeholder="Price" value="${product.price}">
+        <input id="image_url" class="swal2-input" placeholder="Image URL" value="${product.image_url}">
+      `,
+            showCancelButton: true,
+            confirmButtonText: '💾 Save',
+            cancelButtonText: 'Cancel',
+            focusConfirm: false,
+            background: '#1a1a2e',
+            color: '#fff',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            width: 500,
+            preConfirm: () => {
+                const name = (document.getElementById('name') as HTMLInputElement).value.trim()
+                const description = (document.getElementById('description') as HTMLInputElement).value.trim()
+                const price = parseFloat((document.getElementById('price') as HTMLInputElement).value)
+                const image_url = (document.getElementById('image_url') as HTMLInputElement).value.trim()
+
+                if (!name || !description || !price || !image_url) {
+                    Swal.showValidationMessage('⚠ Please fill in all fields correctly')
+                    return false
+                }
+
+                return { name, description, price, image_url }
+            },
+        }).then(async (result) => {
+            if (result.isConfirmed && result.value) {
+                try {
+                    await updateProduct({
+                        id: product.id,
+                        ...result.value,
+                    }).unwrap()
+                    notifySuccess('Product updated successfully!')
+                } catch (err) {
+                    console.error('Error updating product:', err)
+                    notifyError('❌ Failed to update product')
+                }
+            }
         })
-    }
-
-    const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEditForm({ ...editForm, [e.target.name]: e.target.value })
-    }
-
-    const saveEdit = async () => {
-        if (!editingProduct) return
-        try {
-            await updateProduct({
-                id: editingProduct.id,
-                ...editForm,
-                price: Number(editForm.price),
-            }).unwrap()
-            setEditingProduct(null)
-            notifySuccess('✅ Product updated successfully!')
-        } catch (err) {
-            console.error('Error updating product:', err)
-            notifyError('❌ Failed to update product')
-        }
     }
 
     if (isLoading) return <p>Loading products...</p>
@@ -144,30 +152,25 @@ export const ProductsPage = () => {
                         <p>{p.description}</p>
 
                         <div className="product-buttons">
-                            <button className="add-btn" onClick={() => handleAddToCart(p)}>
-                                Add to Cart
-                            </button>
-
+                            {role !== 'admin' && (
+                                <button className="add-btn" onClick={() => handleAddToCart(p)}>
+                                    Add to Cart
+                                </button>
+                            )}
                             {role === 'admin' && (
                                 <>
-                                    <button className="edit-btn" onClick={() => startEdit(p)}>Edit</button>
-                                    <button className="delete-btn" onClick={() => handleDeleteProduct(p.id)}>
+                                    <button className="edit-btn" onClick={() => handleEditProduct(p)}>
+                                        Edit
+                                    </button>
+                                    <button
+                                        className="delete-btn"
+                                        onClick={() => handleDeleteProduct(p.id)}
+                                    >
                                         Delete
                                     </button>
                                 </>
                             )}
                         </div>
-
-                        {editingProduct?.id === p.id && (
-                            <div className="edit-form">
-                                <input type="text" name="name" value={editForm.name} onChange={handleEditChange} />
-                                <input type="text" name="description" value={editForm.description} onChange={handleEditChange} />
-                                <input type="number" name="price" value={editForm.price} onChange={handleEditChange} />
-                                <input type="text" name="image_url" value={editForm.image_url} onChange={handleEditChange} />
-                                <button onClick={saveEdit}>Save</button>
-                                <button onClick={() => setEditingProduct(null)}>Cancel</button>
-                            </div>
-                        )}
                     </li>
                 ))}
             </ul>
