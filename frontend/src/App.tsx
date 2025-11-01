@@ -5,25 +5,27 @@ import { ProductsPage } from './pages/ProductsPage'
 import { AuthPage } from './pages/AuthPage'
 import { CartPage } from './pages/CartPage'
 import { AdminDashboard } from './pages/AdminDashboard'
+import { Toaster } from 'react-hot-toast' // ✅ добавлено
+import { confirmAction, notifyInfo, notifyError } from './utils/alerts' // ✅ добавлено
 import './App.css'
 import type { JSX } from 'react'
 
-/* 🔐 Защищённый маршрут для авторизованных пользователей */
+/* 🔐 Защищённый маршрут */
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     const token = localStorage.getItem('token')
     if (!token) {
-        alert('🔒 Please log in first')
+        notifyError('🔒 Please log in first')
         return <Navigate to="/auth" replace />
     }
     return children
 }
 
-/* 👑 Защищённый маршрут только для админа */
+/* 👑 Только для админов */
 const AdminRoute = ({ children }: { children: JSX.Element }) => {
     const token = localStorage.getItem('token')
     const role = localStorage.getItem('role')
     if (!token || role !== 'admin') {
-        alert('🚫 Access denied. Admins only.')
+        notifyError('🚫 Access denied. Admins only.')
         return <Navigate to="/products" replace />
     }
     return children
@@ -35,21 +37,32 @@ function App() {
     const isAuth = Boolean(token)
     const isAdmin = userRole === 'admin'
 
-    const handleLogout = () => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('role')
-        localStorage.removeItem('userId')
-        alert('👋 Logged out successfully')
-        window.location.href = '/auth'
+    const handleLogout = async () => {
+        const confirmed = await confirmAction('Do you really want to log out?', 'Logout')
+        if (confirmed) {
+            localStorage.removeItem('token')
+            localStorage.removeItem('role')
+            localStorage.removeItem('userId')
+            notifyInfo('👋 Logged out successfully')
+            window.location.href = '/auth'
+        }
     }
 
     return (
         <div className="app">
+            {/* ✅ Toast подключён глобально */}
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 3000,
+                    style: { background: '#333', color: '#fff' },
+                }}
+            />
+
             <header className="app-header">
                 <h1>User Management System</h1>
                 <p className="subtitle">Express + RTK Query</p>
 
-                {/* 🔗 Навигация */}
                 <nav>
                     {!isAuth ? (
                         <>
@@ -58,7 +71,6 @@ function App() {
                         </>
                     ) : (
                         <>
-                            {/* 👑 Только админ видит Users и Admin Dashboard */}
                             {isAdmin && (
                                 <>
                                     <Link to="/users" className="link">👤 Users</Link>{' | '}
@@ -66,16 +78,11 @@ function App() {
                                 </>
                             )}
 
-                            {/* 🛒 Кнопка "Products" видна всем */}
                             <Link to="/products" className="link">🛒 Products</Link>{' | '}
-
-                            {/* 🛍 Кнопка "Cart" видна только не-админам */}
                             {!isAdmin && (
-                                <>
-                                    <Link to="/cart" className="link">🛍 Cart</Link>{' | '}
-                                </>
+                                <Link to="/cart" className="link">🛍 Cart</Link>
                             )}
-
+                            {' | '}
                             <button onClick={handleLogout} className="logout-btn">
                                 🚪 Logout
                             </button>
@@ -86,10 +93,8 @@ function App() {
 
             <main className="app-main">
                 <Routes>
-                    {/* 🔑 Авторизация */}
                     <Route path="/auth" element={<AuthPage />} />
 
-                    {/* 👤 Users — только для администратора */}
                     <Route
                         path="/users"
                         element={
@@ -102,7 +107,6 @@ function App() {
                         }
                     />
 
-                    {/* ⚙️ Админ-панель */}
                     <Route
                         path="/admin"
                         element={
@@ -112,10 +116,8 @@ function App() {
                         }
                     />
 
-                    {/* 🛒 Products — открыто всем */}
                     <Route path="/products" element={<ProductsPage userId={1} />} />
 
-                    {/* 🛍 Cart — только авторизованным, но не админу */}
                     <Route
                         path="/cart"
                         element={
@@ -129,7 +131,6 @@ function App() {
                         }
                     />
 
-                    {/* 🏠 Главная → редирект на /products */}
                     <Route path="/" element={<Navigate to="/products" replace />} />
                 </Routes>
             </main>

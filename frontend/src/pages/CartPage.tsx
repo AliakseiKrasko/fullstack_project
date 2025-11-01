@@ -2,6 +2,7 @@ import { useGetUserOrdersQuery, useDeleteOrderMutation } from '../services/users
 import { useNavigate } from 'react-router-dom'
 import './CartPage.css'
 import { jwtDecode } from 'jwt-decode'
+import { confirmAction, notifyError, notifySuccess } from '../utils/alerts'
 
 interface DecodedToken {
     id: number
@@ -22,6 +23,7 @@ export const CartPage = () => {
             userId = decoded.id
         } catch (err) {
             console.error('Invalid token:', err)
+            notifyError('Invalid token. Please log in again.')
         }
     }
 
@@ -36,14 +38,16 @@ export const CartPage = () => {
 
     // 🗑 Удаление товара
     const handleDelete = async (id: number) => {
-        if (window.confirm('Are you sure you want to remove this item?')) {
-            try {
-                await deleteOrder(id).unwrap()
-                await refetch() // обновляем корзину после удаления
-            } catch (err) {
-                console.error('❌ Error deleting order:', err)
-                alert('Failed to delete item')
-            }
+        const confirmed = await confirmAction('Remove this item from your cart?', 'Confirm deletion')
+        if (!confirmed) return
+
+        try {
+            await deleteOrder(id).unwrap()
+            await refetch() // обновляем корзину после удаления
+            notifySuccess('🗑 Item deleted successfully')
+        } catch (err) {
+            console.error('❌ Error deleting order:', err)
+            notifyError('❌ Failed to delete item')
         }
     }
 
@@ -83,10 +87,7 @@ export const CartPage = () => {
                                     <br />
                                     <small>{new Date(order.order_date).toLocaleString()}</small>
                                 </div>
-                                <button
-                                    className="delete-btn"
-                                    onClick={() => handleDelete(order.id)}
-                                >
+                                <button className="delete-btn" onClick={() => handleDelete(order.id)}>
                                     🗑 Delete
                                 </button>
                             </li>
@@ -97,9 +98,7 @@ export const CartPage = () => {
                     <div className="cart-total">
                         <h3>
                             💰 Total Amount:{' '}
-                            <span style={{ color: '#2ecc71' }}>
-                                ${totalAmount.toFixed(2)}
-                            </span>
+                            <span style={{ color: '#2ecc71' }}>${totalAmount.toFixed(2)}</span>
                         </h3>
                     </div>
                 </>

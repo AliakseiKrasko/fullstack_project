@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { jwtDecode } from 'jwt-decode'
 import {
     useGetProductsQuery,
     useAddOrderMutation,
@@ -7,17 +8,33 @@ import {
 } from '../services/usersApi'
 import type { Product } from '../types/user.types'
 import { ProductForm } from '../components/ProductForm'
+import {
+    notifyError,
+    notifySuccess,
+    notifyInfo,
+    confirmAction,
+} from '../utils/alerts'
 
 export const ProductsPage = () => {
-    const { data: products, isLoading, error } = useGetProductsQuery(undefined)
+    const { data: products, isLoading, error } = useGetProductsQuery()
     const [addOrder] = useAddOrderMutation()
     const [deleteProduct] = useDeleteProductMutation()
     const [updateProduct] = useUpdateProductMutation()
 
     const token = localStorage.getItem('token')
-    const userId = Number(localStorage.getItem('userId'))
     const role = localStorage.getItem('role')
     const isAuth = Boolean(token)
+
+    // 🧩 Извлекаем userId из токена
+    let userId: number | null = null
+    if (token) {
+        try {
+            const decoded = jwtDecode<{ id: number }>(token)
+            userId = decoded.id
+        } catch {
+            console.error('Invalid token')
+        }
+    }
 
     const [editingProduct, setEditingProduct] = useState<Product | null>(null)
     const [editForm, setEditForm] = useState({
@@ -27,9 +44,10 @@ export const ProductsPage = () => {
         image_url: '',
     })
 
+    // 🛒 Добавление в корзину
     const handleAddToCart = async (product: Product) => {
-        if (!isAuth) {
-            alert('⚠ Please log in to buy products!')
+        if (!isAuth || !userId) {
+            notifyInfo('⚠ Please log in to buy products!')
             window.location.href = '/auth'
             return
         }
@@ -41,20 +59,29 @@ export const ProductsPage = () => {
                 amount: product.price,
                 image_url: product.image_url,
             }).unwrap()
-            alert(`✅ ${product.name} added to cart!`)
+            notifySuccess(`${product.name} added to cart!`)
         } catch (err) {
             console.error('Error adding to cart:', err)
+            notifyError('❌ Failed to add to cart')
         }
     }
 
+    // 🗑 Удаление товара
     const handleDeleteProduct = async (id: number) => {
-        if (role !== 'admin') return alert('🚫 Only admin can delete products!')
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            try {
-                await deleteProduct(id).unwrap()
-            } catch (err) {
-                console.error('Error deleting product:', err)
-            }
+        if (role !== 'admin') {
+            notifyError('🚫 Only admin can delete products!')
+            return
+        }
+
+        const confirmed = await confirmAction('Are you sure you want to delete this product?')
+        if (!confirmed) return
+
+        try {
+            await deleteProduct(id).unwrap()
+            notifySuccess('✅ Product deleted successfully!')
+        } catch (err) {
+            console.error('Error deleting product:', err)
+            notifyError('❌ Failed to delete product')
         }
     }
 
@@ -81,9 +108,10 @@ export const ProductsPage = () => {
                 price: Number(editForm.price),
             }).unwrap()
             setEditingProduct(null)
-            alert('✅ Product updated successfully!')
+            notifySuccess('✅ Product updated successfully!')
         } catch (err) {
             console.error('Error updating product:', err)
+            notifyError('❌ Failed to update product')
         }
     }
 
@@ -122,53 +150,20 @@ export const ProductsPage = () => {
 
                             {role === 'admin' && (
                                 <>
-                                    <button
-                                        className="edit-btn"
-                                        onClick={() => startEdit(p)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        className="delete-btn"
-                                        onClick={() => handleDeleteProduct(p.id)}
-                                    >
+                                    <button className="edit-btn" onClick={() => startEdit(p)}>Edit</button>
+                                    <button className="delete-btn" onClick={() => handleDeleteProduct(p.id)}>
                                         Delete
                                     </button>
                                 </>
                             )}
                         </div>
 
-                        {/* ✅ Форма редактирования */}
                         {editingProduct?.id === p.id && (
                             <div className="edit-form">
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={editForm.name}
-                                    onChange={handleEditChange}
-                                    placeholder="Product name"
-                                />
-                                <input
-                                    type="text"
-                                    name="description"
-                                    value={editForm.description}
-                                    onChange={handleEditChange}
-                                    placeholder="Description"
-                                />
-                                <input
-                                    type="number"
-                                    name="price"
-                                    value={editForm.price}
-                                    onChange={handleEditChange}
-                                    placeholder="Price"
-                                />
-                                <input
-                                    type="text"
-                                    name="image_url"
-                                    value={editForm.image_url}
-                                    onChange={handleEditChange}
-                                    placeholder="Image URL"
-                                />
+                                <input type="text" name="name" value={editForm.name} onChange={handleEditChange} />
+                                <input type="text" name="description" value={editForm.description} onChange={handleEditChange} />
+                                <input type="number" name="price" value={editForm.price} onChange={handleEditChange} />
+                                <input type="text" name="image_url" value={editForm.image_url} onChange={handleEditChange} />
                                 <button onClick={saveEdit}>Save</button>
                                 <button onClick={() => setEditingProduct(null)}>Cancel</button>
                             </div>

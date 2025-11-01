@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useRegisterUserMutation, useLoginUserMutation } from '../services/usersApi'
 import { jwtDecode } from 'jwt-decode'
+import {notifyError, notifySuccess, showSuccessModal} from '../utils/alerts.ts';
+
 
 export const AuthPage = () => {
     const [isRegister, setIsRegister] = useState(true)
@@ -17,7 +19,7 @@ export const AuthPage = () => {
         try {
             if (isRegister) {
                 await registerUser(form).unwrap()
-                alert('✅ Registration successful! Please log in.')
+                await showSuccessModal('✅ Registration successful! Please log in.')
                 setIsRegister(false)
             } else {
                 const res = await loginUser({
@@ -35,7 +37,7 @@ export const AuthPage = () => {
                 localStorage.setItem('role', decoded.role)
                 localStorage.setItem('userId', String(decoded.id))
 
-                alert('✅ Logged in successfully!')
+                notifySuccess('✅ Logged in successfully!')
 
                 // 🎯 Автоматический редирект
                 if (decoded.role === 'admin') {
@@ -45,7 +47,7 @@ export const AuthPage = () => {
                 }
             }
         } catch (err: any) {
-            alert(`❌ ${err?.data?.message || 'Something went wrong'}`)
+            notifyError(`❌ ${err?.data?.message || 'Something went wrong'}`)
         }
     }
 
