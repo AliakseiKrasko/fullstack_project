@@ -10,7 +10,6 @@ interface DecodedToken {
     exp: number
 }
 
-
 export const CartPage = () => {
     const token = localStorage.getItem('token')
     const isAuth = Boolean(token)
@@ -31,12 +30,16 @@ export const CartPage = () => {
     })
     const [deleteOrder] = useDeleteOrderMutation()
 
-    // Удаление товара
+    // 🧮 Вычисляем общую сумму корзины
+    const totalAmount =
+        orders?.reduce((sum, order) => sum + Number(order.amount || 0), 0) ?? 0
+
+    // 🗑 Удаление товара
     const handleDelete = async (id: number) => {
         if (window.confirm('Are you sure you want to remove this item?')) {
             try {
                 await deleteOrder(id).unwrap()
-                await refetch() // обновляем корзину
+                await refetch() // обновляем корзину после удаления
             } catch (err) {
                 console.error('❌ Error deleting order:', err)
                 alert('Failed to delete item')
@@ -62,31 +65,44 @@ export const CartPage = () => {
     return (
         <div className="cart-page">
             <h2>🛍 Your Orders</h2>
+
             {orders && orders.length > 0 ? (
-                <ul className="cart-grid">
-                    {orders.map((order) => (
-                        <li key={order.id} className="cart-card">
-                            {order.image_url && (
-                                <img
-                                    src={`http://localhost:3000${order.image_url}`}
-                                    alt={order.product_name}
-                                    className="cart-image"
-                                />
-                            )}
-                            <div className="cart-info">
-                                <strong>{order.product_name}</strong> — ${order.amount}
-                                <br />
-                                <small>{new Date(order.order_date).toLocaleString()}</small>
-                            </div>
-                            <button
-                                className="delete-btn"
-                                onClick={() => handleDelete(order.id)}
-                            >
-                                🗑 Delete
-                            </button>
-                        </li>
-                    ))}
-                </ul>
+                <>
+                    <ul className="cart-grid">
+                        {orders.map((order) => (
+                            <li key={order.id} className="cart-card">
+                                {order.image_url && (
+                                    <img
+                                        src={`http://localhost:3000${order.image_url}`}
+                                        alt={order.product_name}
+                                        className="cart-image"
+                                    />
+                                )}
+                                <div className="cart-info">
+                                    <strong>{order.product_name}</strong> — ${order.amount}
+                                    <br />
+                                    <small>{new Date(order.order_date).toLocaleString()}</small>
+                                </div>
+                                <button
+                                    className="delete-btn"
+                                    onClick={() => handleDelete(order.id)}
+                                >
+                                    🗑 Delete
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+
+                    {/* 💰 Общая сумма всех товаров */}
+                    <div className="cart-total">
+                        <h3>
+                            💰 Total Amount:{' '}
+                            <span style={{ color: '#2ecc71' }}>
+                                ${totalAmount.toFixed(2)}
+                            </span>
+                        </h3>
+                    </div>
+                </>
             ) : (
                 <p>Your cart is empty.</p>
             )}
