@@ -30,8 +30,10 @@ export const AuthPage = () => {
                 localStorage.setItem('refreshToken', res.refreshToken)
 
                 // 🧠 Декодируем токен и сохраняем роль
-                const decoded = jwtDecode<{ role: string }>(res.accessToken)
+                const decoded = jwtDecode<{ id: number; role: string }>(res.accessToken)
+
                 localStorage.setItem('role', decoded.role)
+                localStorage.setItem('userId', String(decoded.id))
 
                 alert('✅ Logged in successfully!')
 

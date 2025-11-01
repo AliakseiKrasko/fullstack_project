@@ -2,12 +2,14 @@ import { useGetProductsQuery, useAddOrderMutation, useDeleteProductMutation } fr
 import type { Product } from '../types/user.types'
 import { ProductForm } from '../components/ProductForm'
 
-export const ProductsPage = ({ userId }: { userId: number }) => {
+export const ProductsPage = () => {
     const { data: products, isLoading, error } = useGetProductsQuery(undefined)
     const [addOrder] = useAddOrderMutation()
     const [deleteProduct] = useDeleteProductMutation()
 
-    const token = localStorage.getItem('token') // 👈 проверяем авторизацию
+    const token = localStorage.getItem('token')
+    const userId = Number(localStorage.getItem('userId'))
+    const role = localStorage.getItem('role') // ✅ добавлено
     const isAuth = Boolean(token)
 
     const handleAddToCart = async (product: Product) => {
@@ -22,7 +24,7 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
                 user_id: userId,
                 product_name: product.name,
                 amount: product.price,
-                image_url: product.image_url, // ✅ добавили
+                image_url: product.image_url,
             }).unwrap()
 
             alert(`✅ ${product.name} added to cart!`)
@@ -32,7 +34,11 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
     }
 
     const handleDeleteProduct = async (id: number) => {
-        if (!isAuth) return
+        if (role !== 'admin') {
+            alert('🚫 Only admin can delete products!')
+            return
+        }
+
         if (window.confirm('Are you sure you want to delete this product?')) {
             try {
                 await deleteProduct(id).unwrap()
@@ -50,8 +56,8 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
         <div className="products-page">
             <h2>Products</h2>
 
-            {/* Только авторизованный может добавлять */}
-            {isAuth && <ProductForm />}
+            {/* ✅ Форма добавления доступна только админу */}
+            {isAuth && role === 'admin' && <ProductForm />}
 
             <ul className="products-grid">
                 {products?.map((p: Product) => (
@@ -74,11 +80,11 @@ export const ProductsPage = ({ userId }: { userId: number }) => {
 
                         <div className="product-buttons">
                             <button className="add-btn" onClick={() => handleAddToCart(p)}>
-                                {isAuth ? 'Add to Cart' : 'Buy'}
+                                Add to Cart
                             </button>
 
-                            {/* Только авторизованный видит кнопку удаления */}
-                            {isAuth && (
+                            {/* ✅ Кнопка удаления доступна только админу */}
+                            {role === 'admin' && (
                                 <button
                                     className="delete-btn"
                                     onClick={() => handleDeleteProduct(p.id)}

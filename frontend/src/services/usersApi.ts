@@ -113,7 +113,7 @@ export const usersApi = createApi({
 
         // --- ORDERS ---
         getUserOrders: builder.query<Order[], number>({
-            query: (userId) => `/users/${userId}/orders`,
+            query: (userId) => `/orders/user/${userId}`,
             providesTags: ['Orders'],
         }),
 

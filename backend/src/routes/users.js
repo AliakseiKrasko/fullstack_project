@@ -3,23 +3,16 @@ import {
     getAllUsers,
     createUser,
     deleteUser,
-    getUserOrders
+    updateUser
 } from '../controllers/usersController.js'
+import {isAdmin, verifyToken} from "../middleware/authMiddleware.js";
 
-import { verifyToken, isAdmin } from '../middleware/authMiddleware.js' // 👈 добавляем middleware
 
 const router = express.Router()
 
-// 👑 Только админ может видеть всех пользователей
 router.get('/', verifyToken, isAdmin, getAllUsers)
-
-// 👑 Только админ может создавать пользователей
 router.post('/', verifyToken, isAdmin, createUser)
-
-// 👑 Только админ может удалять пользователей
+router.patch('/:id', verifyToken, updateUser) // 👈 PATCH для обновления пользователя
 router.delete('/:id', verifyToken, isAdmin, deleteUser)
-
-// 👤 Любой авторизованный пользователь может получить свои заказы
-router.get('/:id/orders', verifyToken, getUserOrders)
 
 export default router

@@ -1,90 +1,85 @@
 import pool from '../config/database.js'
 
-// 📧 Проверка email
-const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-
-// 👤 Получить всех пользователей (только админ)
+// ✅ Получить всех пользователей (только для админов)
 export const getAllUsers = async (req, res) => {
     try {
-        const result = await pool.query(
-            'SELECT id, name, email, role, created_at FROM users_auth ORDER BY created_at DESC'
-        )
+        const result = await pool.query('SELECT id, name, email, role, created_at FROM users_auth ORDER BY id ASC')
         res.json(result.rows)
     } catch (error) {
         console.error('Error fetching users:', error)
-        res.status(500).json({ message: 'Failed to fetch users' })
+        res.status(500).json({ success: false, message: 'Failed to fetch users' })
     }
 }
 
-// ➕ Создать пользователя (только админ)
+// ✅ Создать пользователя (только для админов)
 export const createUser = async (req, res) => {
     try {
-        const { name, email, role = 'user' } = req.body
+        const { name, email, password, role } = req.body
 
-        if (!name?.trim() || !email?.trim()) {
-            return res.status(400).json({ message: 'Name and email are required' })
+        if (!name || !email || !password) {
+            return res.status(400).json({ success: false, message: 'All fields are required' })
         }
-        if (!isValidEmail(email)) {
-            return res.status(400).json({ message: 'Email must be valid' })
+
+        const existing = await pool.query('SELECT id FROM users_auth WHERE email = $1', [email])
+        if (existing.rows.length > 0) {
+            return res.status(400).json({ success: false, message: 'User already exists' })
+        }
+
+        await pool.query(
+            `INSERT INTO users_auth (name, email, password, role)
+             VALUES ($1, $2, $3, $4)`,
+            [name, email, password, role || 'user']
+        )
+
+        res.status(201).json({ success: true, message: 'User created successfully' })
+    } catch (error) {
+        console.error('Error creating user:', error)
+        res.status(500).json({ success: false, message: 'Failed to create user' })
+    }
+}
+
+// ✅ Обновить пользователя (админ или сам пользователь)
+export const updateUser = async (req, res) => {
+    try {
+        const { id } = req.params
+        const { name, email, role } = req.body
+
+        // Проверяем, имеет ли право пользователь обновлять
+        if (req.user.role !== 'admin' && req.user.id !== parseInt(id)) {
+            return res.status(403).json({ success: false, message: 'Access denied' })
+        }
+
+        // Проверяем, существует ли пользователь
+        const existing = await pool.query('SELECT id FROM users_auth WHERE id = $1', [id])
+        if (existing.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'User not found' })
         }
 
         const result = await pool.query(
-            'INSERT INTO users_auth (name, email, role) VALUES ($1, $2, $3) RETURNING id, name, email, role, created_at',
-            [name.trim(), email.trim(), role]
+            `UPDATE users_auth
+             SET name = COALESCE($1, name),
+                 email = COALESCE($2, email),
+                 role = COALESCE($3, role)
+             WHERE id = $4
+             RETURNING id, name, email, role`,
+            [name, email, role, id]
         )
 
-        res.status(201).json(result.rows[0])
+        res.json({ success: true, message: 'User updated successfully', user: result.rows[0] })
     } catch (error) {
-        console.error('Error creating user:', error)
-        if (error.code === '23505') {
-            return res.status(400).json({ message: 'Email already exists' })
-        }
-        res.status(500).json({ message: 'Failed to create user' })
+        console.error('Error updating user:', error)
+        res.status(500).json({ success: false, message: 'Failed to update user' })
     }
 }
 
-// ❌ Удалить пользователя (только админ)
+// ✅ Удалить пользователя (только для админов)
 export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params
-        if (!id || isNaN(id)) {
-            return res.status(400).json({ message: 'Invalid user ID' })
-        }
-
-        const result = await pool.query('DELETE FROM users_auth WHERE id = $1', [id])
-
-        if (result.rowCount === 0) {
-            return res.status(404).json({ message: `User with ID ${id} not found` })
-        }
-
-        res.status(204).send()
+        await pool.query('DELETE FROM users_auth WHERE id = $1', [id])
+        res.json({ success: true, message: 'User deleted successfully' })
     } catch (error) {
         console.error('Error deleting user:', error)
-        res.status(500).json({ message: 'Failed to delete user' })
-    }
-}
-
-// 📦 Заказы конкретного пользователя (видит только себя или админ)
-export const getUserOrders = async (req, res) => {
-    try {
-        const { id } = req.params
-
-        if (!id || isNaN(id)) {
-            return res.status(400).json({ message: 'Invalid user ID' })
-        }
-
-        if (req.user.role !== 'admin' && req.user.id !== parseInt(id, 10)) {
-            return res.status(403).json({ message: 'Access denied: You can view only your orders' })
-        }
-
-        const result = await pool.query(
-            'SELECT * FROM orders WHERE user_id = $1 ORDER BY order_date DESC',
-            [id]
-        )
-
-        res.json(result.rows)
-    } catch (error) {
-        console.error('Error fetching user orders:', error)
-        res.status(500).json({ message: 'Failed to fetch user orders' })
+        res.status(500).json({ success: false, message: 'Failed to delete user' })
     }
 }
