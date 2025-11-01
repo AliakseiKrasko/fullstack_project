@@ -156,6 +156,14 @@ export const usersApi = createApi({
             }),
             invalidatesTags: ['Products'],
         }),
+        updateProduct: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/products/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Products'],
+        }),
     }),
 })
 
@@ -171,4 +179,5 @@ export const {
     useGetProductsQuery,
     useDeleteProductMutation,
     useAddProductMutation,
+    useUpdateProductMutation,
 } = usersApi
