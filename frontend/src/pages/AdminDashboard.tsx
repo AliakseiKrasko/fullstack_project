@@ -1,50 +1,30 @@
-import { Link, useNavigate } from 'react-router-dom'
 import './AdminDashboard.css'
-import { useGetUsersQuery } from '../services/usersApi'
+import {useGetAllOrdersQuery} from '../services/usersApi'
 
 export const AdminDashboard = () => {
-    const navigate = useNavigate()
-    const token = localStorage.getItem('token')
-    const userRole = localStorage.getItem('role')
+    const { data: orders, isLoading, error } = useGetAllOrdersQuery()
 
-    // ✅ выносим хук наверх — до любых return
-    const { data: users, isLoading, error } = useGetUsersQuery(undefined, {
-        skip: !token || userRole !== 'admin', // 👈 хук не выполняется, если не админ
-    })
-
-    // 🔒 Проверка роли
-    if (!token || userRole !== 'admin') {
-        alert('Access denied: Admins only!')
-        navigate('/products')
-        return null
-    }
-
-    if (isLoading) return <p>Loading users...</p>
-    if (error) return <p style={{ color: 'red' }}>Error loading users</p>
+    if (isLoading) return <p>Loading orders...</p>
+    if (error) return <p style={{ color: 'red' }}>Error loading orders</p>
 
     return (
         <div className="admin-page">
             <h2>👑 Admin Dashboard</h2>
-            <p>Welcome, Admin! You have full control over the system.</p>
-
-            <div className="admin-sections">
-                <Link to="/products" className="admin-card">
-                    🛒 Manage Products
-                </Link>
-                <Link to="/cart" className="admin-card">
-                    🧾 View Orders
-                </Link>
-                <div className="admin-card users-section">
-                    <h3>👤 Users</h3>
-                    <ul>
-                        {users?.map((u) => (
-                            <li key={u.id}>
-                                {u.name} — {u.email} ({u.role})
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
+            <section>
+                <h3>📦 All Orders</h3>
+                <ul>
+                    {orders?.map(order => (
+                        <li key={order.id}>
+                            <img
+                                src={`http://localhost:3000${order.image_url}`}
+                                alt={order.product_name}
+                                width={50}
+                            />
+                            <span>{order.product_name} — ${order.amount}</span> | {order.user_name}
+                        </li>
+                    ))}
+                </ul>
+            </section>
         </div>
     )
 }

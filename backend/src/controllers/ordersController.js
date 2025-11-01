@@ -79,3 +79,25 @@ export const deleteOrder = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete order' })
     }
 }
+// 🔹 Все заказы для админа
+export const getAllOrders = async (req, res) => {
+    try {
+        const result = await pool.query(`
+    SELECT 
+        o.id, 
+        o.product_name, 
+        o.amount, 
+        o.image_url, 
+        o.order_date,         
+        u.name AS user_name
+    FROM orders o
+    JOIN users_auth u ON o.user_id = u.id
+    ORDER BY o.order_date DESC
+`)
+
+        res.json(result.rows)
+    } catch (err) {
+        console.error('Error fetching all orders:', err)
+        res.status(500).json({ message: 'Error fetching all orders' })
+    }
+}

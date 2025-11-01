@@ -18,6 +18,7 @@ export interface Order {
     amount: number
     order_date: string
     image_url?: string
+    user_name?: string
 }
 
 export interface Product {

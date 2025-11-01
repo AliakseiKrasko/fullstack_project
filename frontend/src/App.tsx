@@ -4,11 +4,11 @@ import { UserList } from './components/UserList'
 import { ProductsPage } from './pages/ProductsPage'
 import { AuthPage } from './pages/AuthPage'
 import { CartPage } from './pages/CartPage'
-import { AdminDashboard } from './pages/AdminDashboard' // ✅ импортируем админку
+import { AdminDashboard } from './pages/AdminDashboard'
 import './App.css'
 import type { JSX } from 'react'
 
-/* 🔐 Компонент защиты маршрутов */
+/* 🔐 Защищённый маршрут для авторизованных пользователей */
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     const token = localStorage.getItem('token')
     if (!token) {
@@ -18,7 +18,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     return children
 }
 
-/* 👑 Отдельный компонент для защиты маршрута администратора */
+/* 👑 Защищённый маршрут только для админа */
 const AdminRoute = ({ children }: { children: JSX.Element }) => {
     const token = localStorage.getItem('token')
     const role = localStorage.getItem('role')
@@ -38,6 +38,7 @@ function App() {
     const handleLogout = () => {
         localStorage.removeItem('token')
         localStorage.removeItem('role')
+        localStorage.removeItem('userId')
         alert('👋 Logged out successfully')
         window.location.href = '/auth'
     }
@@ -65,8 +66,16 @@ function App() {
                                 </>
                             )}
 
+                            {/* 🛒 Кнопка "Products" видна всем */}
                             <Link to="/products" className="link">🛒 Products</Link>{' | '}
-                            <Link to="/cart" className="link">🛍 Cart</Link>{' | '}
+
+                            {/* 🛍 Кнопка "Cart" видна только не-админам */}
+                            {!isAdmin && (
+                                <>
+                                    <Link to="/cart" className="link">🛍 Cart</Link>{' | '}
+                                </>
+                            )}
+
                             <button onClick={handleLogout} className="logout-btn">
                                 🚪 Logout
                             </button>
@@ -106,12 +115,16 @@ function App() {
                     {/* 🛒 Products — открыто всем */}
                     <Route path="/products" element={<ProductsPage userId={1} />} />
 
-                    {/* 🛍 Cart — только авторизованным */}
+                    {/* 🛍 Cart — только авторизованным, но не админу */}
                     <Route
                         path="/cart"
                         element={
                             <ProtectedRoute>
-                                <CartPage />
+                                {isAdmin ? (
+                                    <Navigate to="/products" replace />
+                                ) : (
+                                    <CartPage />
+                                )}
                             </ProtectedRoute>
                         }
                     />

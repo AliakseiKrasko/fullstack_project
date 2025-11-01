@@ -133,6 +133,10 @@ export const usersApi = createApi({
             }),
             invalidatesTags: ['Orders'],
         }),
+        getAllOrders: builder.query<Order[], void>({
+            query: () => '/orders/all',
+            providesTags: ['Orders'],
+        }),
 
         // --- PRODUCTS ---
         getProducts: builder.query<Product[], void>({
@@ -180,4 +184,5 @@ export const {
     useDeleteProductMutation,
     useAddProductMutation,
     useUpdateProductMutation,
+    useGetAllOrdersQuery,
 } = usersApi
