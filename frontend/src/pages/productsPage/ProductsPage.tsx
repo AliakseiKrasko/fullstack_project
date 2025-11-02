@@ -1,7 +1,7 @@
-import { jwtDecode } from 'jwt-decode'
-import type { Product } from '../../types/user.types.ts'
-import { ProductForm } from '../../components/ProductForm.tsx'
-import { confirmAction, notifyError, notifyInfo, notifySuccess } from '../../utils/alerts.ts'
+import {jwtDecode} from 'jwt-decode'
+import type {Product} from '../../types/user.types.ts'
+import {ProductForm} from '../../components/ProductForm.tsx'
+import {confirmAction, notifyError, notifyInfo, notifySuccess} from '../../utils/alerts.ts'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import {
@@ -10,14 +10,14 @@ import {
     useGetProductsQuery,
     useUpdateProductMutation, useUpdateProductRatingMutation
 } from '../../services/usersApi.ts';
-import React from 'react';
 import ReactStars from 'react-rating-stars-component';
+import {showProductDetails} from '../../components/ProductDetailsModal.tsx';
 
 
 const MySwal = withReactContent(Swal)
 
 export const ProductsPage = () => {
-    const { data: products, isLoading, error } = useGetProductsQuery()
+    const { data: products, isLoading, error, refetch } = useGetProductsQuery()
     const [addOrder] = useAddOrderMutation()
     const [deleteProduct] = useDeleteProductMutation()
     const [updateProduct] = useUpdateProductMutation()
@@ -49,6 +49,7 @@ export const ProductsPage = () => {
         try {
             await addOrder({
                 user_id: userId,
+                product_id: product.id,
                 product_name: product.name,
                 amount: product.price,
                 image_url: product.image_url,
@@ -130,71 +131,12 @@ export const ProductsPage = () => {
         try {
             await updateProductRating({ id, rating: newRating }).unwrap()
             notifySuccess('⭐ Rating updated!')
+            refetch() // ✅ обновляем список товаров после изменения рейтинга
         } catch {
             notifyError('❌ Failed to update rating')
         }
     }
 
-    // 🪟 Просмотр деталей
-    const handleShowProductDetails = (product: Product) => {
-        const rating = product.rating || 4.0
-
-        MySwal.fire({
-            title: `<strong>${product.name}</strong>`,
-            html: `
-            <div style="
-                display: flex;
-                flex-direction: row;
-                gap: 20px;
-                align-items: flex-start;
-                justify-content: center;
-            ">
-                <!-- Левая колонка -->
-                <div style="flex: 1; text-align: center;">
-                    <img 
-                        src="http://localhost:3000${product.image_url}" 
-                        alt="${product.name}" 
-                        style="width: 250px; height: 250px; object-fit: contain; border-radius: 8px; background: #fff; padding: 8px;"
-                    />
-                    <p style="font-size: 18px; color: #2ecc71; font-weight: bold; margin-top: 12px;">
-                        💰 $${product.price}
-                    </p>
-                    <div id="rating-stars" style="margin-top: 10px;"></div>
-                </div>
-
-                <!-- Правая колонка -->
-                <div style="flex: 1; text-align: left;">
-                    <p style="margin-top: 8px; font-size: 15px; color: #ddd; line-height: 1.5;">
-                        ${product.description || 'No description available'}
-                    </p>
-                </div>
-            </div>
-        `,
-            showConfirmButton: false,
-            background: '#1e1e2f',
-            color: '#fff',
-            width: 700,
-            didOpen: () => {
-                const container = document.getElementById('rating-stars')
-                if (container) {
-                    const stars = React.createElement(ReactStars, {
-                        count: 5,
-                        size: 30,
-                        value: rating,
-                        edit: true,
-                        isHalf: true,
-                        activeColor: '#ffd700',
-                        onChange: (newRating: number) =>
-                            handleRatingChange(product.id, newRating),
-                    })
-                    import('react-dom/client').then((ReactDOM) => {
-                        const root = ReactDOM.createRoot(container!)
-                        root.render(stars)
-                    })
-                }
-            },
-        })
-    }
 
     if (isLoading) return <p>Loading products...</p>
     if (error) return <p style={{ color: 'red' }}>Error loading products</p>
@@ -210,7 +152,16 @@ export const ProductsPage = () => {
                     <li
                         key={p.id}
                         className="product-card"
-                        onClick={() => handleShowProductDetails(p)}
+                        onClick={() =>
+                            showProductDetails({
+                                id: p.id,
+                                name: p.name,
+                                price: p.price,
+                                image_url: p.image_url,
+                                description: p.description,
+                                rating: p.rating, // ✅ корректное поле
+                            })
+                        }
                         style={{ cursor: 'pointer' }}
                     >
                         <img

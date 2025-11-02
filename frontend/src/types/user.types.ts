@@ -19,6 +19,10 @@ export interface Order {
     order_date: string
     image_url?: string
     user_name?: string
+    description?: string
+    rating?: number
+    product_image?: string
+    product_id?: number
 }
 
 export interface Product {

@@ -78,16 +78,16 @@ export const CartPage = () => {
                             <li
                                 key={order.id}
                                 className="cart-card"
-                                onClick={() =>
+                                onClick={() => {
                                     showProductDetails({
-                                        id: order.id,
+                                        id: order.product_id!,
                                         name: order.product_name,
                                         price: order.amount,
                                         image_url: order.product_image || order.image_url,
                                         description: order.description,
-                                        rating: order.rating, // ✅ теперь реально приходит из БД
+                                        rating: order.rating,
                                     })
-                                }
+                                }}
                             >
                                 {order.image_url && (
                                     <img
