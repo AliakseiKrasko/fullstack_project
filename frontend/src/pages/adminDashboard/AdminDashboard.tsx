@@ -1,5 +1,5 @@
 import './AdminDashboard.css'
-import { useGetAllOrdersQuery } from '../services/usersApi'
+import { useGetAllOrdersQuery } from '../../services/usersApi.ts'
 
 export const AdminDashboard = () => {
     const { data: orders, isLoading, error } = useGetAllOrdersQuery()

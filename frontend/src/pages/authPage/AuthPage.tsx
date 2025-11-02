@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { useRegisterUserMutation, useLoginUserMutation } from '../services/usersApi'
+import { useRegisterUserMutation, useLoginUserMutation } from '../../services/usersApi.ts'
 import { jwtDecode } from 'jwt-decode'
-import {notifyError, notifySuccess, showSuccessModal} from '../utils/alerts.ts';
+import {notifyError, notifySuccess, showSuccessModal} from '../../utils/alerts.ts';
 
 
 export const AuthPage = () => {

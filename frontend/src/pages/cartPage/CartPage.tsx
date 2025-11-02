@@ -1,8 +1,8 @@
-import { useGetUserOrdersQuery, useDeleteOrderMutation } from '../services/usersApi'
+import { useGetUserOrdersQuery, useDeleteOrderMutation } from '../../services/usersApi.ts'
 import { useNavigate } from 'react-router-dom'
 import './CartPage.css'
 import { jwtDecode } from 'jwt-decode'
-import { confirmAction, notifyError, notifySuccess } from '../utils/alerts'
+import { confirmAction, notifyError, notifySuccess } from '../../utils/alerts.ts'
 
 interface DecodedToken {
     id: number

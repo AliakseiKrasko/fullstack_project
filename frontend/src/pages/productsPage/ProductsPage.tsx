@@ -4,10 +4,10 @@ import {
     useDeleteProductMutation,
     useGetProductsQuery,
     useUpdateProductMutation,
-} from '../services/usersApi'
-import type {Product} from '../types/user.types'
-import {ProductForm} from '../components/ProductForm'
-import {confirmAction, notifyError, notifyInfo, notifySuccess,} from '../utils/alerts'
+} from '../../services/usersApi.ts'
+import type {Product} from '../../types/user.types.ts'
+import {ProductForm} from '../../components/ProductForm.tsx'
+import {confirmAction, notifyError, notifyInfo, notifySuccess,} from '../../utils/alerts.ts'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
