@@ -1,0 +1,87 @@
+/* Контейнер заказов */
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Карточка заказа */
+.order-card {
+    background: linear-gradient(135deg, #f8f8ff, #eef3ff);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+}
+
+/* 📸 Фото товара */
+.order-img {
+    width: 100px;          /* фиксированная ширина */
+    height: 100px;         /* фиксированная высота */
+    object-fit: contain;   /* чтобы картинка не обрезалась */
+    border-radius: 8px;
+    background: #fff;
+    padding: 5px;
+    margin-bottom: 0.8rem;
+}
+
+/* Информация о заказе */
+.order-info {
+    text-align: center;
+}
+
+.order-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.order-price {
+    color: #27ae60;
+    font-weight: 500;
+}
+
+.order-date {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* Кнопка удаления */
+.delete-order-btn {
+    margin-top: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #e74c3c;
+    transition: color 0.2s;
+}
+
+.delete-order-btn:hover {
+    color: #c0392b;
+}
+
+/* Общая сумма */
+.total-amount {
+    text-align: right;
+    margin-top: 1rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.total-value {
+    color: #2ecc71;
+}
+
+.orders-container {
+    width: 100%;
+    margin-top: 1rem;
+}
