@@ -168,6 +168,14 @@ export const usersApi = createApi({
             }),
             invalidatesTags: ['Products'],
         }),
+        updateProductRating: builder.mutation<void, { id: number; rating: number }>({
+            query: ({ id, rating }) => ({
+                url: `/products/${id}/rating`,
+                method: 'PATCH',
+                body: { rating },
+            }),
+            invalidatesTags: ['Products'],
+        }),
     }),
 })
 
@@ -185,4 +193,5 @@ export const {
     useAddProductMutation,
     useUpdateProductMutation,
     useGetAllOrdersQuery,
+    useUpdateProductRatingMutation,
 } = usersApi

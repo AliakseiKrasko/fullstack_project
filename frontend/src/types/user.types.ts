@@ -28,6 +28,7 @@ export interface Product {
     price: number
     image_url: string   // ✅ путь к файлу, например "/uploads/laptop.jpg"
     created_at?: string // опционально, если есть в БД
+    rating?: number
 }
 
 export interface AuthResponse {

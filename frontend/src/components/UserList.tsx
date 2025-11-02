@@ -1,5 +1,5 @@
 import {useGetUsersQuery} from '../services/usersApi'
-import {UserItem} from './UserItem'
+import {UserItem} from './userItem/UserItem.tsx'
 
 export const UserList = () => {
     const { data: users, isLoading, error } = useGetUsersQuery()

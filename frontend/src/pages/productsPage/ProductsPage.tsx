@@ -1,15 +1,18 @@
-import {jwtDecode} from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
+import type { Product } from '../../types/user.types.ts'
+import { ProductForm } from '../../components/ProductForm.tsx'
+import { confirmAction, notifyError, notifyInfo, notifySuccess } from '../../utils/alerts.ts'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 import {
     useAddOrderMutation,
     useDeleteProductMutation,
     useGetProductsQuery,
-    useUpdateProductMutation,
-} from '../../services/usersApi.ts'
-import type {Product} from '../../types/user.types.ts'
-import {ProductForm} from '../../components/ProductForm.tsx'
-import {confirmAction, notifyError, notifyInfo, notifySuccess,} from '../../utils/alerts.ts'
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
+    useUpdateProductMutation, useUpdateProductRatingMutation
+} from '../../services/usersApi.ts';
+import React from 'react';
+import ReactStars from 'react-rating-stars-component';
+
 
 const MySwal = withReactContent(Swal)
 
@@ -18,6 +21,7 @@ export const ProductsPage = () => {
     const [addOrder] = useAddOrderMutation()
     const [deleteProduct] = useDeleteProductMutation()
     const [updateProduct] = useUpdateProductMutation()
+    const [updateProductRating] = useUpdateProductRatingMutation()
 
     const token = localStorage.getItem('token')
     const role = localStorage.getItem('role')
@@ -75,20 +79,19 @@ export const ProductsPage = () => {
         }
     }
 
-    // ✏️ Редактирование товара в модальном окне
+    // ✏️ Редактирование товара
     const handleEditProduct = (product: Product) => {
         MySwal.fire({
             title: `Edit Product: ${product.name}`,
             html: `
-        <input id="name" class="swal2-input" placeholder="Name" value="${product.name}">
-        <input id="description" class="swal2-input" placeholder="Description" value="${product.description}">
-        <input id="price" type="number" step="0.01" class="swal2-input" placeholder="Price" value="${product.price}">
-        <input id="image_url" class="swal2-input" placeholder="Image URL" value="${product.image_url}">
-      `,
+                <input id="name" class="swal2-input" placeholder="Name" value="${product.name}">
+                <input id="description" class="swal2-input" placeholder="Description" value="${product.description}">
+                <input id="price" type="number" step="0.01" class="swal2-input" placeholder="Price" value="${product.price}">
+                <input id="image_url" class="swal2-input" placeholder="Image URL" value="${product.image_url}">
+            `,
             showCancelButton: true,
             confirmButtonText: '💾 Save',
             cancelButtonText: 'Cancel',
-            focusConfirm: false,
             background: '#1a1a2e',
             color: '#fff',
             confirmButtonColor: '#3085d6',
@@ -115,11 +118,66 @@ export const ProductsPage = () => {
                         ...result.value,
                     }).unwrap()
                     notifySuccess('Product updated successfully!')
-                } catch (err) {
-                    console.error('Error updating product:', err)
+                } catch {
                     notifyError('❌ Failed to update product')
                 }
             }
+        })
+    }
+
+    // ⭐ Изменение рейтинга
+    const handleRatingChange = async (id: number, newRating: number) => {
+        try {
+            await updateProductRating({ id, rating: newRating }).unwrap()
+            notifySuccess('⭐ Rating updated!')
+        } catch {
+            notifyError('❌ Failed to update rating')
+        }
+    }
+
+    // 🪟 Просмотр деталей
+    const handleShowProductDetails = (product: Product) => {
+        const rating = product.rating || 4.0
+
+        MySwal.fire({
+            title: `<strong>${product.name}</strong>`,
+            html: `
+                <img 
+                    src="http://localhost:3000${product.image_url}" 
+                    alt="${product.name}" 
+                    style="width: 250px; height: 250px; object-fit: contain; border-radius: 8px; background: #fff; padding: 8px;"
+                />
+                <p style="margin-top: 12px; font-size: 15px; color: #ddd;">
+                    ${product.description || 'No description available'}
+                </p>
+                <p style="font-size: 18px; color: #2ecc71; font-weight: bold;">
+                    💰 $${product.price}
+                </p>
+                <div id="rating-stars"></div>
+            `,
+            showConfirmButton: false,
+            background: '#1e1e2f',
+            color: '#fff',
+            width: 420,
+            didOpen: () => {
+                const container = document.getElementById('rating-stars')
+                if (container) {
+                    const stars = React.createElement(ReactStars, {
+                        count: 5,
+                        size: 30,
+                        value: rating,
+                        edit: true,
+                        isHalf: true,
+                        activeColor: '#ffd700',
+                        onChange: (newRating: number) =>
+                            handleRatingChange(product.id, newRating),
+                    })
+                    import('react-dom/client').then((ReactDOM) => {
+                        const root = ReactDOM.createRoot(container!)
+                        root.render(stars)
+                    })
+                }
+            },
         })
     }
 
@@ -134,7 +192,12 @@ export const ProductsPage = () => {
 
             <ul className="products-grid">
                 {products?.map((p: Product) => (
-                    <li key={p.id} className="product-card">
+                    <li
+                        key={p.id}
+                        className="product-card"
+                        onClick={() => handleShowProductDetails(p)}
+                        style={{ cursor: 'pointer' }}
+                    >
                         <img
                             src={`http://localhost:3000${p.image_url}`}
                             alt={p.name}
@@ -151,20 +214,45 @@ export const ProductsPage = () => {
                         <strong>{p.name}</strong> — ${p.price}
                         <p>{p.description}</p>
 
+                        <ReactStars
+                            count={5}
+                            size={24}
+                            value={p.rating || 4.0}
+                            edit={true}
+                            isHalf={true}
+                            activeColor="#ffd700"
+                            onChange={(newRating) => handleRatingChange(p.id, newRating)}
+                        />
+
                         <div className="product-buttons">
                             {role !== 'admin' && (
-                                <button className="add-btn" onClick={() => handleAddToCart(p)}>
+                                <button
+                                    className="add-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleAddToCart(p)
+                                    }}
+                                >
                                     Add to Cart
                                 </button>
                             )}
                             {role === 'admin' && (
                                 <>
-                                    <button className="edit-btn" onClick={() => handleEditProduct(p)}>
+                                    <button
+                                        className="edit-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleEditProduct(p)
+                                        }}
+                                    >
                                         Edit
                                     </button>
                                     <button
                                         className="delete-btn"
-                                        onClick={() => handleDeleteProduct(p.id)}
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleDeleteProduct(p.id)
+                                        }}
                                     >
                                         Delete
                                     </button>

@@ -3,9 +3,9 @@ import {
     useDeleteOrderMutation,
     useDeleteUserMutation,
     useGetUserOrdersQuery,
-} from '../services/usersApi'
-import type { User } from '../types/user.types'
-import { notifyError, notifySuccess, confirmAction } from '../utils/alerts'
+} from '../../services/usersApi.ts'
+import type { User } from '../../types/user.types.ts'
+import { notifyError, notifySuccess, confirmAction } from '../../utils/alerts.ts'
 import { motion, AnimatePresence } from 'framer-motion'
 import './UserItem.css'
 
