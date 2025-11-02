@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import {AuthPage} from '../../pages/authPage/AuthPage.tsx';
 import {AdminRoute} from '../../components/routes/AdminRoute.tsx';
 import {UserList} from '../../components/UserList.tsx';
-import {UserForm} from '../../components/UserForm.tsx';
 import {AdminDashboard} from '../../pages/adminDashboard/AdminDashboard.tsx';
 import {ProductsPage} from '../../pages/productsPage/ProductsPage.tsx';
 import {ProtectedRoute} from '../../components/routes/ProtectedRoute.tsx';
@@ -18,7 +17,6 @@ export const AppRoutes = ({ isAdmin }: { isAdmin: boolean }) => (
             element={
                 <AdminRoute>
                     <>
-                        <UserForm />
                         <UserList />
                     </>
                 </AdminRoute>

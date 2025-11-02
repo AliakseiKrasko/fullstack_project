@@ -26,7 +26,7 @@ export const UserItem = ({ user }: UserItemProps) => {
 
         try {
             await deleteUser(user.id).unwrap()
-            notifySuccess(`✅ User "${user.name}" deleted successfully!`)
+            notifySuccess(`User "${user.name}" deleted successfully!`)
         } catch (err: unknown) {
             if (typeof err === 'object' && err && 'data' in err) {
                 const apiError = err as { data?: { message?: string } }
