@@ -6,11 +6,11 @@
 }
 
 .product-card {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 12px;
     padding: 15px;
     text-align: center;
-    color: #fff;
+    color: #292a38;
     transition: transform 0.2s;
 }
 
@@ -50,4 +50,17 @@
 
 .delete-btn:hover {
     opacity: 0.8;
+}
+.product-card p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* максимум 2 строки */
+    -webkit-box-orient: vertical;
+    word-break: break-word; /* ✅ переносит длинные слова */
+    white-space: normal;
+    line-height: 1.4;
+    color: #292a38;
+    font-size: 15px;
+    margin-top: 5px;
 }

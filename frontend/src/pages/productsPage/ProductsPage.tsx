@@ -12,6 +12,7 @@ import {
 } from '../../services/usersApi.ts';
 import ReactStars from 'react-rating-stars-component';
 import {showProductDetails} from '../../components/ProductDetailsModal.tsx';
+import './ProductsPage.css'
 
 
 const MySwal = withReactContent(Swal)
@@ -162,7 +163,7 @@ export const ProductsPage = () => {
                                 rating: p.rating, // ✅ корректное поле
                             })
                         }
-                        style={{ cursor: 'pointer' }}
+                        style={{cursor: 'pointer'}}
                     >
                         <img
                             src={`http://localhost:3000${p.image_url}`}
@@ -178,7 +179,12 @@ export const ProductsPage = () => {
                             }}
                         />
                         <strong>{p.name}</strong> — ${p.price}
-                        <p>{p.description}</p>
+                        <p>
+                            {p.description
+                                ? p.description.split(' ').slice(0, 3).join(' ') +
+                                (p.description.split(' ').length > 3 ? '…' : '')
+                                : ''}
+                        </p>
 
                         <ReactStars
                             count={5}
