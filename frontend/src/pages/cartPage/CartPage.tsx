@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import './CartPage.css'
 import { jwtDecode } from 'jwt-decode'
 import { confirmAction, notifyError, notifySuccess } from '../../utils/alerts.ts'
+import {showProductDetails} from '../../components/ProductDetailsModal.tsx';
 
 interface DecodedToken {
     id: number
@@ -74,7 +75,20 @@ export const CartPage = () => {
                 <>
                     <ul className="cart-grid">
                         {orders.map((order) => (
-                            <li key={order.id} className="cart-card">
+                            <li
+                                key={order.id}
+                                className="cart-card"
+                                onClick={() =>
+                                    showProductDetails({
+                                        id: order.id,
+                                        name: order.product_name,
+                                        price: order.amount,
+                                        image_url: order.product_image || order.image_url,
+                                        description: order.description,
+                                        rating: order.rating, // ✅ теперь реально приходит из БД
+                                    })
+                                }
+                            >
                                 {order.image_url && (
                                     <img
                                         src={`http://localhost:3000${order.image_url}`}
@@ -87,7 +101,13 @@ export const CartPage = () => {
                                     <br />
                                     <small>{new Date(order.order_date).toLocaleString()}</small>
                                 </div>
-                                <button className="delete-btn" onClick={() => handleDelete(order.id)}>
+                                <button
+                                    className="delete-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation() // чтобы не открывалось окно при удалении
+                                        handleDelete(order.id)
+                                    }}
+                                >
                                     🗑 Delete
                                 </button>
                             </li>

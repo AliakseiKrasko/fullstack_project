@@ -10,7 +10,24 @@ export const getUserOrders = async (req, res) => {
             return res.status(403).json({ message: 'Access denied' })
         }
 
-        const orders = await pool.query('SELECT * FROM orders WHERE user_id = $1', [id])
+        const orders = await pool.query(`
+            SELECT 
+                o.id,
+                o.amount,
+                o.order_date,
+                o.image_url,
+                o.product_name,
+                p.description,
+                p.rating,           -- ✅ рейтинг товара
+                p.price,             -- ✅ реальная цена (если нужно)
+                p.image_url AS product_image
+            FROM orders o
+            JOIN products p 
+              ON o.product_name = p.name  -- ⚠️ Если у тебя связь по имени
+            WHERE o.user_id = $1
+            ORDER BY o.id ASC
+        `, [id])
+
         res.json(orders.rows)
     } catch (error) {
         console.error('Error fetching orders:', error)

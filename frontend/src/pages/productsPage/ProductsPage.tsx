@@ -142,23 +142,38 @@ export const ProductsPage = () => {
         MySwal.fire({
             title: `<strong>${product.name}</strong>`,
             html: `
-                <img 
-                    src="http://localhost:3000${product.image_url}" 
-                    alt="${product.name}" 
-                    style="width: 250px; height: 250px; object-fit: contain; border-radius: 8px; background: #fff; padding: 8px;"
-                />
-                <p style="margin-top: 12px; font-size: 15px; color: #ddd;">
-                    ${product.description || 'No description available'}
-                </p>
-                <p style="font-size: 18px; color: #2ecc71; font-weight: bold;">
-                    💰 $${product.price}
-                </p>
-                <div id="rating-stars"></div>
-            `,
+            <div style="
+                display: flex;
+                flex-direction: row;
+                gap: 20px;
+                align-items: flex-start;
+                justify-content: center;
+            ">
+                <!-- Левая колонка -->
+                <div style="flex: 1; text-align: center;">
+                    <img 
+                        src="http://localhost:3000${product.image_url}" 
+                        alt="${product.name}" 
+                        style="width: 250px; height: 250px; object-fit: contain; border-radius: 8px; background: #fff; padding: 8px;"
+                    />
+                    <p style="font-size: 18px; color: #2ecc71; font-weight: bold; margin-top: 12px;">
+                        💰 $${product.price}
+                    </p>
+                    <div id="rating-stars" style="margin-top: 10px;"></div>
+                </div>
+
+                <!-- Правая колонка -->
+                <div style="flex: 1; text-align: left;">
+                    <p style="margin-top: 8px; font-size: 15px; color: #ddd; line-height: 1.5;">
+                        ${product.description || 'No description available'}
+                    </p>
+                </div>
+            </div>
+        `,
             showConfirmButton: false,
             background: '#1e1e2f',
             color: '#fff',
-            width: 420,
+            width: 700,
             didOpen: () => {
                 const container = document.getElementById('rating-stars')
                 if (container) {
