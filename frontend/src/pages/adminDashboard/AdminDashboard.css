@@ -1,43 +1,31 @@
 .admin-page {
     padding: 20px;
+    color: #fff;
+    background: linear-gradient(135deg, #6a5acd, #7b68ee);
+    min-height: 100vh;
 }
 
-.admin-sections {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.admin-card {
-    background: #f9f9f9;
+.user-orders {
+    margin-bottom: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
     border-radius: 12px;
-    padding: 20px;
-    text-decoration: none;
-    color: #222;
-    font-weight: 600;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: 0.2s;
 }
 
-.admin-card:hover {
-    background: #eaeaea;
-    transform: translateY(-3px);
-}
-
-.users-section {
-    flex: 1 1 100%;
-}
-
-.users-section ul {
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
     margin-top: 10px;
-    list-style: none;
-    padding: 0;
+    background: rgba(0, 0, 0, 0.2);
 }
 
-.users-section li {
-    background: #fff;
-    margin-bottom: 6px;
-    padding: 8px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+.orders-table th,
+.orders-table td {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: left;
+}
+
+.orders-table img {
+    border-radius: 6px;
 }
