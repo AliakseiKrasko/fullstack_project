@@ -29,3 +29,11 @@
 .orders-table img {
     border-radius: 6px;
 }
+.user-total {
+    margin-top: 10px;
+    font-weight: 600;
+    color: #fff;
+}
+.user-orders h2 {
+    color: #333;
+}
